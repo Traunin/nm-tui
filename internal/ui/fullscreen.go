@@ -2,8 +2,10 @@ package ui
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
+	"github.com/alphameo/nm-tui/internal/nmcli"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -33,7 +35,16 @@ func (m Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return fmt.Sprintf("\n\n OHIO in %d", m)
+	WifiList, err := nmcli.ScanWifi()
+	if err != nil {
+		return err.Error()
+	}
+	sb := strings.Builder{}
+	for i, wifiNet := range WifiList {
+		line := fmt.Sprintf("%v: %s\t%v\n", i+1, wifiNet.SSID, wifiNet.Signal)
+		sb.WriteString(line)
+	}
+	return sb.String()
 }
 
 func tick() tea.Cmd {
