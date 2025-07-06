@@ -24,12 +24,6 @@ func (m Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "esc", "ctrl+c":
 			return m, tea.Quit
 		}
-	case tickMsg:
-		m--
-		if m <= 0 {
-			return m, tea.Quit
-		}
-		return m, tick()
 	}
 	return m, nil
 }
@@ -45,8 +39,4 @@ func (m Model) View() string {
 		sb.WriteString(line)
 	}
 	return sb.String()
-}
-
-func tick() tea.Cmd {
-	return tea.Tick(time.Second, func(t time.Time) tea.Msg { return tickMsg(t) })
 }
