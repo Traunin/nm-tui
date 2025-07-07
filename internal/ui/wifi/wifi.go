@@ -1,4 +1,5 @@
-package ui
+// Package wifi provides interaction with wifi networks from nmcli
+package wifi
 
 import (
 	"fmt"
@@ -11,13 +12,13 @@ import (
 
 type updatedRowsMsg []table.Row
 
-type WifiModel struct {
+type Model struct {
 	wifiTable       table.Model
 	updatingSpinner spinner.Model
 	updating        bool
 }
 
-func NewModel() WifiModel {
+func New() Model {
 	columns := []table.Column{
 		{Title: "SSID", Width: 16},
 		{Title: "Signal", Width: 8},
@@ -28,22 +29,20 @@ func NewModel() WifiModel {
 		table.WithHeight(7),
 	)
 	s := spinner.New()
-	m := WifiModel{wifiTable: t, updatingSpinner: s, updating: true}
+	m := Model{wifiTable: t, updatingSpinner: s, updating: true}
 	return m
 }
 
-func (m WifiModel) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return tea.Batch(m.updatingSpinner.Tick, m.updateWifiList())
 }
 
-func (m WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "q", "esc", "ctrl+c":
-			return m, tea.Quit
 		case "r":
 			if m.updating {
 				return m, nil
@@ -69,7 +68,7 @@ func (m WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m WifiModel) View() string {
+func (m Model) View() string {
 	out := m.wifiTable.View()
 	if m.updating {
 		out += "\n" + m.updatingSpinner.View()
@@ -77,7 +76,7 @@ func (m WifiModel) View() string {
 	return out
 }
 
-func (m *WifiModel) updateWifiList() tea.Cmd {
+func (m *Model) updateWifiList() tea.Cmd {
 	return func() tea.Msg {
 		rows := getWifiRows()
 		return updatedRowsMsg(rows)
