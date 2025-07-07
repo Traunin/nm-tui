@@ -28,12 +28,12 @@ func NewModel() WifiModel {
 		table.WithHeight(7),
 	)
 	s := spinner.New()
-	m := WifiModel{wifiTable: t, updatingSpinner: s, updating: false}
+	m := WifiModel{wifiTable: t, updatingSpinner: s, updating: true}
 	return m
 }
 
 func (m WifiModel) Init() tea.Cmd {
-	return m.updatingSpinner.Tick
+	return tea.Batch(m.updatingSpinner.Tick, m.updateWifiList())
 }
 
 func (m WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
