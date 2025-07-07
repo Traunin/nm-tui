@@ -72,6 +72,8 @@ func (m Model) View() string {
 	out := m.wifiTable.View()
 	if m.updating {
 		out += "\n" + m.updatingSpinner.View()
+	} else {
+		out += "\n󰄬 "
 	}
 	return out
 }
