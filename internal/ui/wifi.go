@@ -4,17 +4,39 @@ import (
 	"fmt"
 
 	"github.com/alphameo/nm-tui/internal/nmcli"
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type Model struct {
-	wifiTable table.Model
+type updatedRowsMsg []table.Row
+
+type WifiModel struct {
+	wifiTable       table.Model
+	updatingSpinner spinner.Model
+	updating        bool
 }
 
-func (m Model) Init() tea.Cmd { return nil }
+func NewModel() WifiModel {
+	columns := []table.Column{
+		{Title: "SSID", Width: 16},
+		{Title: "Signal", Width: 8},
+	}
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithFocused(true),
+		table.WithHeight(7),
+	)
+	s := spinner.New()
+	m := WifiModel{wifiTable: t, updatingSpinner: s, updating: false}
+	return m
+}
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m WifiModel) Init() tea.Cmd {
+	return m.updatingSpinner.Tick
+}
+
+func (m WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
@@ -23,13 +45,43 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "esc", "ctrl+c":
 			return m, tea.Quit
 		case "r":
-			rows := getWifiRows()
-			m.wifiTable.SetRows(rows)
-			m.wifiTable, cmd = m.wifiTable.Update(msg)
-			cmds = append(cmds, cmd)
+			if m.updating {
+				return m, nil
+			}
+			m.updating = true
+			cmds := []tea.Cmd{
+				m.updateWifiList(),     // start loading
+				m.updatingSpinner.Tick, // restart spinner animation
+			}
+			return m, tea.Batch(cmds...)
 		}
+	case updatedRowsMsg:
+		m.updating = false
+		m.wifiTable.SetRows(msg)
+		return m, nil
 	}
+	if m.updating {
+		m.updatingSpinner, cmd = m.updatingSpinner.Update(msg)
+		cmds = append(cmds, cmd)
+	}
+	m.wifiTable, cmd = m.wifiTable.Update(msg)
+	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
+}
+
+func (m WifiModel) View() string {
+	out := m.wifiTable.View()
+	if m.updating {
+		out += "\n" + m.updatingSpinner.View()
+	}
+	return out
+}
+
+func (m *WifiModel) updateWifiList() tea.Cmd {
+	return func() tea.Msg {
+		rows := getWifiRows()
+		return updatedRowsMsg(rows)
+	}
 }
 
 func getWifiRows() []table.Row {
@@ -42,23 +94,4 @@ func getWifiRows() []table.Row {
 		rows = append(rows, table.Row{wifiNet.SSID, fmt.Sprint(wifiNet.Signal)})
 	}
 	return rows
-}
-
-func (m Model) View() string {
-	return m.wifiTable.View()
-}
-
-func InitialModel() Model {
-	columns := []table.Column{
-		{Title: "SSID", Width: 16},
-		{Title: "Signal", Width: 8},
-	}
-	t := table.New(
-		table.WithColumns(columns),
-		table.WithRows(getWifiRows()),
-		table.WithFocused(true),
-		table.WithHeight(7),
-	)
-	m := Model{wifiTable: t}
-	return m
 }
