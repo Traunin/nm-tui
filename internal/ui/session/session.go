@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/alphameo/nm-tui/internal/ui/popup"
 	"github.com/alphameo/nm-tui/internal/ui/wifi"
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type sessionState uint
@@ -20,22 +22,38 @@ type Model struct {
 	state sessionState
 	wifi  wifi.Model
 	timer timer.Model
+	popup popup.Model
 }
 
 func New() Model {
 	wifi := wifi.New()
 	timer := timer.New(time.Hour)
-	m := Model{wifi: wifi, timer: timer}
+	popup := popup.New()
+	m := Model{
+		wifi:  wifi,
+		timer: timer,
+		popup: popup,
+	}
 	return m
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(m.timer.Init(), m.wifi.Init())
+	return tea.Batch(
+		m.timer.Init(),
+		m.wifi.Init(),
+		m.popup.Init(),
+	)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
+	if m.popup.Active {
+		var upd tea.Model
+		upd, cmd = m.popup.Update(msg)
+		m.popup = upd.(popup.Model)
+		return m, cmd
+	}
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -47,6 +65,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				m.state = wifiView
 			}
+		case "o":
+			m.popup.Active = !m.popup.Active
 		}
 		switch m.state {
 		case wifiView:
@@ -67,5 +87,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return m.wifi.View() + "\n" + m.timer.View() + fmt.Sprint(m.state)
+	mainView := m.wifi.View() + "\n" + m.timer.View() + fmt.Sprint(m.state)
+
+	if m.popup.Active {
+		return lipgloss.Place(80, 24, lipgloss.Center, lipgloss.Center,
+			mainView+"\n"+m.popup.View())
+	}
+	return mainView
 }
