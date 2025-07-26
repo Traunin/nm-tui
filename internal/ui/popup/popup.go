@@ -45,10 +45,5 @@ func New() Model {
 	return Model{}
 }
 
-func main() {
-	p := tea.NewProgram(New(), tea.WithAltScreen())
-	if _, err := p.Run(); err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
 	}
 }
