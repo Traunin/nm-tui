@@ -6,7 +6,7 @@ import (
 )
 
 type Model struct {
-	content string
+	Content string
 }
 
 type CloseMsg bool
@@ -34,7 +34,7 @@ func (m Model) View() string {
 		Height(7).
 		Align(lipgloss.Center).
 		Foreground(lipgloss.Color("#ffffff"))
-	return overlay.Render("Floating window!\nPress 'o' to close.")
+	return overlay.Render(m.Content)
 }
 
 func New() Model {

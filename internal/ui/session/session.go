@@ -94,3 +94,8 @@ func (m Model) View() string {
 	}
 	return styles.BorderStyle.Render(mainView)
 }
+
+func (m *Model) showPopup(content string) {
+	m.popActive = true
+	m.popup.Content = content
+}
