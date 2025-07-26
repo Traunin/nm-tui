@@ -10,8 +10,9 @@ import (
 
 type Model struct {
 	content string
-	Active  bool
 }
+
+type CloseMsg bool
 
 func (m Model) Init() tea.Cmd {
 	return nil
@@ -22,11 +23,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
-			m.Active = false
-			return m, nil
+			return m, m.quit()
 		}
 	}
-	return m, nil
+	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
@@ -45,5 +45,8 @@ func New() Model {
 	return Model{}
 }
 
+func (m *Model) quit() tea.Cmd {
+	return func() tea.Msg {
+		return CloseMsg(true)
 	}
 }
