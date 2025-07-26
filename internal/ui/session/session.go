@@ -25,6 +25,8 @@ type Model struct {
 	timer     timer.Model
 	popup     popup.Model
 	popActive bool
+	width     int
+	height    int
 }
 
 func New() Model {
@@ -77,6 +79,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	}
+	size, ok := msg.(tea.WindowSizeMsg)
+	if ok {
+		m.width = size.Width - 2
+		m.height = size.Height - 2
+	}
 	var updated tea.Model
 	updated, cmd = m.wifi.Update(msg)
 	cmds = append(cmds, cmd)
@@ -92,7 +99,7 @@ func (m Model) View() string {
 		mainView = lipgloss.Place(80, 24, lipgloss.Center, lipgloss.Center,
 			mainView+"\n"+m.popup.View())
 	}
-	return styles.BorderStyle.Render(mainView)
+	return styles.BorderStyle.Width(m.width).Height(m.height).Render(mainView)
 }
 
 func (m *Model) showPopup(content string) {
