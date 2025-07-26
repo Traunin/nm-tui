@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/alphameo/nm-tui/internal/ui/popup"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/wifi"
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
@@ -86,11 +87,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	mainView := m.wifi.View() + "\n" + m.timer.View() + fmt.Sprint(m.state)
-
-		return lipgloss.Place(80, 24, lipgloss.Center, lipgloss.Center,
+	mainView := m.wifi.View() + "\n" + m.timer.View() + fmt.Sprintf("\n state: %v", m.state)
 	if m.popActive {
+		mainView = lipgloss.Place(80, 24, lipgloss.Center, lipgloss.Center,
 			mainView+"\n"+m.popup.View())
 	}
-	return mainView
+	return styles.BorderStyle.Render(mainView)
 }
