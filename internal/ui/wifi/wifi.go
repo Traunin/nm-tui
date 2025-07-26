@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/alphameo/nm-tui/internal/nmcli"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -75,7 +76,7 @@ func (m Model) View() string {
 	} else {
 		out += "\n󰄬 "
 	}
-	return out
+	return styles.BorderStyle.Render(out)
 }
 
 func (m *Model) updateWifiList() tea.Cmd {
