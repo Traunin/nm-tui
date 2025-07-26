@@ -49,8 +49,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m.updating = true
 			cmds := []tea.Cmd{
-				m.updateWifiList(),     // start loading
-				m.updatingSpinner.Tick, // restart spinner animation
+				m.updateWifiList(),
+				m.updatingSpinner.Tick,
 			}
 			return m, tea.Batch(cmds...)
 		}
