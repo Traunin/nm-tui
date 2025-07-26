@@ -29,14 +29,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	overlay := lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder()).
+		Border(lipgloss.RoundedBorder()).
 		Width(30).
 		Height(7).
 		Align(lipgloss.Center).
-		Background(lipgloss.Color("#111111")).
-		Foreground(lipgloss.Color("#ffffff")).
-		Render("Floating window!\nPress 'o' to close.")
-	return overlay
+		Foreground(lipgloss.Color("#ffffff"))
+	return overlay.Render("Floating window!\nPress 'o' to close.")
 }
 
 func New() Model {
