@@ -19,10 +19,7 @@ const (
 )
 
 type Model struct {
-	state sessionState
-	wifi  wifi.Model
-	timer timer.Model
-	popup popup.Model
+	state     sessionState
 }
 
 func New() Model {
@@ -30,9 +27,10 @@ func New() Model {
 	timer := timer.New(time.Hour)
 	popup := popup.New()
 	m := Model{
-		wifi:  wifi,
-		timer: timer,
-		popup: popup,
+		wifi:      wifi,
+		timer:     timer,
+		popup:     popup,
+		popActive: false,
 	}
 	return m
 }
@@ -48,49 +46,46 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
-	if m.popup.Active {
+	if m.popActive {
 		var upd tea.Model
+		_, ok := msg.(popup.CloseMsg)
+		if ok {
+			m.popActive = !m.popActive
+		}
 		upd, cmd = m.popup.Update(msg)
 		m.popup = upd.(popup.Model)
-		return m, cmd
-	}
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "q", "esc", "ctrl+c":
-			return m, tea.Quit
-		case "tab":
-			if m.state == wifiView {
-				m.state = timerView
-			} else {
-				m.state = wifiView
+		cmds = append(cmds, cmd)
+	} else {
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "q", "esc", "ctrl+c":
+				return m, tea.Quit
+			case "tab":
+				if m.state == wifiView {
+					m.state = timerView
+				} else {
+					m.state = wifiView
+				}
+			case "o":
+				m.popActive = !m.popActive
 			}
-		case "o":
-			m.popup.Active = !m.popup.Active
 		}
-		switch m.state {
-		case wifiView:
-			var updated tea.Model
-			updated, cmd = m.wifi.Update(msg)
-			cmds = append(cmds, cmd)
-			m.wifi = updated.(wifi.Model)
-		}
-	default:
-		var updated tea.Model
-		updated, cmd = m.wifi.Update(msg)
-		cmds = append(cmds, cmd)
-		m.wifi = updated.(wifi.Model)
-		m.timer, cmd = m.timer.Update(msg)
-		cmds = append(cmds, cmd)
 	}
+	var updated tea.Model
+	updated, cmd = m.wifi.Update(msg)
+	cmds = append(cmds, cmd)
+	m.wifi = updated.(wifi.Model)
+	m.timer, cmd = m.timer.Update(msg)
+	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
 	mainView := m.wifi.View() + "\n" + m.timer.View() + fmt.Sprint(m.state)
 
-	if m.popup.Active {
 		return lipgloss.Place(80, 24, lipgloss.Center, lipgloss.Center,
+	if m.popActive {
 			mainView+"\n"+m.popup.View())
 	}
 	return mainView
