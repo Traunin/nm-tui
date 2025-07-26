@@ -20,6 +20,10 @@ const (
 
 type Model struct {
 	state     sessionState
+	wifi      wifi.Model
+	timer     timer.Model
+	popup     popup.Model
+	popActive bool
 }
 
 func New() Model {
