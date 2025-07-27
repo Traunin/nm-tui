@@ -20,12 +20,12 @@ type Model struct {
 }
 
 func New() Model {
-	columns := []table.Column{
+	cols := []table.Column{
 		{Title: "SSID", Width: 16},
 		{Title: "Signal", Width: 8},
 	}
 	t := table.New(
-		table.WithColumns(columns),
+		table.WithColumns(cols),
 		table.WithFocused(true),
 		table.WithHeight(7),
 	)
