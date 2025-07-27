@@ -1,3 +1,4 @@
+// Package popup provides simple popup windows
 package popup
 
 import (
@@ -5,44 +6,42 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// Model contains any tea.Model inside
 type Model struct {
-	Content string
+	Content  tea.Model
+	IsActive bool
+	width    int
+	height   int
 }
 
-type CloseMsg bool
-
 func (m Model) Init() tea.Cmd {
-	return nil
+	return m.Content.Init()
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmds []tea.Cmd
+	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "q", "esc", "ctrl+c":
-			return m, m.quit()
+			m.IsActive = false
+			return m, nil
 		}
 	}
-	return m, tea.Batch(cmds...)
+	m.Content, cmd = m.Content.Update(msg)
+	return m, cmd
 }
 
 func (m Model) View() string {
 	overlay := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		Width(30).
-		Height(7).
-		Align(lipgloss.Center).
+		Width(m.width).
+		Height(m.height).
+		Align(lipgloss.Center, lipgloss.Center).
 		Foreground(lipgloss.Color("#ffffff"))
-	return overlay.Render(m.Content)
+	return overlay.Render(m.Content.View())
 }
 
-func New() Model {
-	return Model{}
-}
-
-func (m *Model) quit() tea.Cmd {
-	return func() tea.Msg {
-		return CloseMsg(true)
-	}
+func New(content tea.Model) Model {
+	return Model{content, false, 30, 17}
 }
