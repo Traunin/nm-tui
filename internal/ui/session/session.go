@@ -1,9 +1,11 @@
+// Package session contains Model, which represents main window of TUI
 package session
 
 import (
 	"fmt"
 	"time"
 
+	"github.com/alphameo/nm-tui/internal/logger"
 	"github.com/alphameo/nm-tui/internal/ui/popup"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/wifi"
@@ -20,24 +22,25 @@ const (
 )
 
 type Model struct {
-	state     sessionState
-	wifi      wifi.Model
-	timer     timer.Model
-	popup     popup.Model
-	popActive bool
-	width     int
-	height    int
+	state        sessionState
+	wifi         wifi.Model
+	timer        timer.Model
+	floatWin     popup.Model
+	notification popup.Model
+	width        int
+	height       int
 }
 
 func New() Model {
-	wifi := wifi.New()
-	timer := timer.New(time.Hour)
-	popup := popup.New()
+	w := wifi.New()
+	t := timer.New(time.Hour)
+	f := popup.New(NewTextModel())
+	n := popup.New(NewTextModel())
 	m := Model{
-		wifi:      wifi,
-		timer:     timer,
-		popup:     popup,
-		popActive: false,
+		wifi:         w,
+		timer:        t,
+		floatWin:     f,
+		notification: n,
 	}
 	return m
 }
@@ -46,21 +49,22 @@ func (m Model) Init() tea.Cmd {
 	return tea.Batch(
 		m.timer.Init(),
 		m.wifi.Init(),
-		m.popup.Init(),
+		m.floatWin.Init(),
+		m.notification.Init(),
 	)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
-	if m.popActive {
-		var upd tea.Model
-		_, ok := msg.(popup.CloseMsg)
-		if ok {
-			m.popActive = !m.popActive
-		}
-		upd, cmd = m.popup.Update(msg)
-		m.popup = upd.(popup.Model)
+	var upd tea.Model
+	if m.notification.IsActive {
+		upd, cmd = m.notification.Update(msg)
+		m.notification = upd.(popup.Model)
+		cmds = append(cmds, cmd)
+	} else if m.floatWin.IsActive {
+		upd, cmd = m.floatWin.Update(msg)
+		m.floatWin = upd.(popup.Model)
 		cmds = append(cmds, cmd)
 	} else {
 		switch msg := msg.(type) {
@@ -75,7 +79,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.state = wifiView
 				}
 			case "o":
-				m.popActive = !m.popActive
+				m.floatWin.IsActive = true
+			case "n":
+				m.notify("xdd")
 			}
 		}
 	}
@@ -84,10 +90,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = size.Width - 2
 		m.height = size.Height - 2
 	}
-	var updated tea.Model
-	updated, cmd = m.wifi.Update(msg)
+	upd, cmd = m.wifi.Update(msg)
 	cmds = append(cmds, cmd)
-	m.wifi = updated.(wifi.Model)
+	m.wifi = upd.(wifi.Model)
 	m.timer, cmd = m.timer.Update(msg)
 	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
@@ -95,14 +100,52 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	mainView := m.wifi.View() + "\n" + m.timer.View() + fmt.Sprintf("\n state: %v", m.state)
-	if m.popActive {
-		mainView = lipgloss.Place(80, 24, lipgloss.Center, lipgloss.Center,
-			mainView+"\n"+m.popup.View())
+	if m.floatWin.IsActive {
+		popupLayout := lipgloss.Place(m.width, m.height,
+			lipgloss.Center, lipgloss.Center,
+			m.floatWin.View(),
+		)
+		mainView = popupLayout
+	}
+	if m.notification.IsActive {
+		notifLayout := lipgloss.Place(m.width, m.height,
+			lipgloss.Center, lipgloss.Center,
+			m.floatWin.View(),
+		)
+		mainView = notifLayout
 	}
 	return styles.BorderStyle.Width(m.width).Height(m.height).Render(mainView)
 }
 
-func (m *Model) showPopup(content string) {
-	m.popActive = true
-	m.popup.Content = content
+func (m *Model) showPopup(content tea.Model) {
+	m.floatWin.IsActive = true
+	m.floatWin.Content = content
+}
+
+func (m *Model) notify(text string) {
+	n, ok := m.notification.Content.(TextModel)
+	if !ok {
+		logger.ErrorLog.Println("Invalid Type")
+	}
+	n.Text = text
+	m.notification.IsActive = true
+}
+
+// TextModel contains only string inside
+type TextModel struct{ Text string }
+
+func (m TextModel) Init() tea.Cmd {
+	return nil
+}
+
+func (m TextModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	return m, nil
+}
+
+func (m TextModel) View() string {
+	return m.Text
+}
+
+func NewTextModel() TextModel {
+	return TextModel{"Placeholder"}
 }
