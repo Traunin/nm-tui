@@ -110,7 +110,7 @@ func (m Model) View() string {
 	if m.notification.IsActive {
 		notifLayout := lipgloss.Place(m.width, m.height,
 			lipgloss.Center, lipgloss.Center,
-			m.floatWin.View(),
+			m.notification.View(),
 		)
 		mainView = notifLayout
 	}
@@ -123,11 +123,12 @@ func (m *Model) showPopup(content tea.Model) {
 }
 
 func (m *Model) notify(text string) {
-	n, ok := m.notification.Content.(TextModel)
+	t, ok := m.notification.Content.(TextModel)
 	if !ok {
 		logger.ErrorLog.Println("Invalid Type")
 	}
-	n.Text = text
+	t.Text = text
+	m.notification.Content = t
 	m.notification.IsActive = true
 }
 
