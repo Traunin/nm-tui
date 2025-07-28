@@ -2,6 +2,7 @@
 package popup
 
 import (
+	"github.com/alphameo/nm-tui/internal/logger"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -44,4 +45,7 @@ func (m Model) View() string {
 
 func New(content tea.Model) Model {
 	return Model{content, false, 30, 17}
+	if content == nil {
+		logger.ErrorLog.Panicln("content is nil")
+	}
 }
