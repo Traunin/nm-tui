@@ -32,7 +32,7 @@ type Model struct {
 }
 
 func New() Model {
-	w := wifi.New()
+	w := wifi.New(30, 20)
 	t := timer.New(time.Hour)
 	f := popup.New(NewTextModel(), 150, 30)
 	n := popup.New(NewTextModel(), 100, 10)

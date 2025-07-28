@@ -19,15 +19,19 @@ type Model struct {
 	updating        bool
 }
 
-func New() *Model {
+func New(width int, height int) *Model {
+	offset := 4
+	signalWidth := 3
+	ssidWidth := width - signalWidth - offset
 	cols := []table.Column{
-		{Title: "SSID", Width: 16},
-		{Title: "Signal", Width: 8},
+		{Title: "SSID", Width: ssidWidth},
+		{Title: "", Width: signalWidth},
 	}
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
-		table.WithHeight(7),
+		table.WithWidth(width),
+		table.WithHeight(height),
 	)
 	s := spinner.New()
 	m := &Model{wifiTable: t, updatingSpinner: s, updating: true}
