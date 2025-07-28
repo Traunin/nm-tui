@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type updatedRowsMsg []table.Row
@@ -76,11 +77,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	out := m.wifiTable.View()
+	var symbol string
 	if m.updating {
-		out += "\n" + m.updatingSpinner.View()
+		symbol = m.updatingSpinner.View()
 	} else {
-		out += "\n󰄬 "
+		symbol = "󰄬 "
 	}
+	out += "\n" + lipgloss.Place(m.wifiTable.Width(), 1, lipgloss.Center, lipgloss.Center, symbol)
 	return styles.BorderStyle.Render(out)
 }
 
