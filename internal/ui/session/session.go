@@ -34,8 +34,8 @@ type Model struct {
 func New() Model {
 	w := wifi.New()
 	t := timer.New(time.Hour)
-	f := popup.New(NewTextModel())
-	n := popup.New(NewTextModel())
+	f := popup.New(NewTextModel(), 150, 30)
+	n := popup.New(NewTextModel(), 100, 10)
 	m := Model{
 		wifi:         w,
 		timer:        t,

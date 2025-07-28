@@ -43,9 +43,9 @@ func (m Model) View() string {
 	return overlay.Render(m.Content.View())
 }
 
-func New(content tea.Model) Model {
-	return Model{content, false, 30, 17}
+func New(content tea.Model, width int, heigh int) Model {
 	if content == nil {
 		logger.ErrorLog.Panicln("content is nil")
 	}
+	return Model{content, false, width, heigh}
 }
