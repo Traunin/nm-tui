@@ -37,10 +37,10 @@ func New() Model {
 	f := popup.New(NewTextModel(), 150, 30)
 	n := popup.New(NewTextModel(), 100, 10)
 	m := Model{
-		wifi:         w,
+		wifi:         *w,
 		timer:        t,
-		floatWin:     f,
-		notification: n,
+		floatWin:     *f,
+		notification: *n,
 	}
 	return m
 }

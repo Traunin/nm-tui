@@ -19,7 +19,7 @@ type Model struct {
 	updating        bool
 }
 
-func New() Model {
+func New() *Model {
 	cols := []table.Column{
 		{Title: "SSID", Width: 16},
 		{Title: "Signal", Width: 8},
@@ -30,7 +30,7 @@ func New() Model {
 		table.WithHeight(7),
 	)
 	s := spinner.New()
-	m := Model{wifiTable: t, updatingSpinner: s, updating: true}
+	m := &Model{wifiTable: t, updatingSpinner: s, updating: true}
 	return m
 }
 
