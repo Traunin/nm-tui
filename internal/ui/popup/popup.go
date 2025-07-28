@@ -11,8 +11,8 @@ import (
 type Model struct {
 	Content  tea.Model
 	IsActive bool
-	width    int
-	height   int
+	Width    int
+	Height   int
 }
 
 func (m Model) Init() tea.Cmd {
@@ -36,8 +36,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	overlay := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		Width(m.width).
-		Height(m.height).
+		Width(m.Width).
+		Height(m.Height).
 		Align(lipgloss.Center, lipgloss.Center).
 		Foreground(lipgloss.Color("#ffffff"))
 	return overlay.Render(m.Content.View())
