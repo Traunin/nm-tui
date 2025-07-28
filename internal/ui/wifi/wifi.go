@@ -33,6 +33,7 @@ func New(width int, height int) *Model {
 		table.WithWidth(width),
 		table.WithHeight(height),
 	)
+	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
 	m := &Model{wifiTable: t, updatingSpinner: s, updating: true}
 	return m
