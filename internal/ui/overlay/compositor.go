@@ -13,8 +13,8 @@ func Compose(fg, bg string, x, y int) string {
 	fgXmax := x + fgW
 	fgYmax := y + fgH
 
-	if (fgW >= bgW && fgH >= bgH) || x >= bgW || y >= bgH {
-		return fg
+	if (fgW >= bgW && fgH >= bgH) || x >= bgW || y >= bgH || fgXmax < 0 || fgYmax < 0 {
+		return bg
 	}
 
 	fgLines := lines(fg)
@@ -23,6 +23,9 @@ func Compose(fg, bg string, x, y int) string {
 	var sb strings.Builder
 
 	var fgInd int
+	if y < 0 {
+		fgInd -= y
+	}
 
 	for bgY, bgLine := range bgLines {
 		if bgY > 0 {
@@ -32,10 +35,16 @@ func Compose(fg, bg string, x, y int) string {
 			sb.WriteString(bgLine)
 			continue
 		}
-		left := ansi.Truncate(bgLine, x, "")
-		sb.WriteString(left)
+		if x > 0 {
+			left := ansi.Truncate(bgLine, x, "")
+			sb.WriteString(left)
+		}
 		fgLine := fgLines[fgInd]
 		fgInd++
+
+		if x < 0 {
+			fgLine = ansi.TruncateLeft(fgLine, -x, "")
+		}
 
 		if fgXmax <= bgW {
 			sb.WriteString(fgLine)
