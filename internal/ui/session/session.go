@@ -100,6 +100,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	mainView := m.wifi.View() + "\n" + m.timer.View() + fmt.Sprintf("\n state: %v", m.state)
+	mainView = styles.BorderStyle.Width(m.width).Height(m.height).Render(mainView)
+
 	if m.floatWin.IsActive {
 		popupLayout := lipgloss.Place(m.width, m.height,
 			lipgloss.Center, lipgloss.Center,
@@ -108,13 +110,9 @@ func (m Model) View() string {
 		mainView = popupLayout
 	}
 	if m.notification.IsActive {
-		notifLayout := lipgloss.Place(m.width, m.height,
-			lipgloss.Center, lipgloss.Center,
-			m.notification.View(),
-		)
-		mainView = notifLayout
+		mainView = popup.Compose(m.notification.View(), mainView, 12, 12)
 	}
-	return styles.BorderStyle.Width(m.width).Height(m.height).Render(mainView)
+	return mainView
 }
 
 func (m *Model) showPopup(content tea.Model) {
