@@ -87,8 +87,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	size, ok := msg.(tea.WindowSizeMsg)
 	if ok {
-		m.width = size.Width - 2
-		m.height = size.Height - 2
+		m.width = size.Width
+		m.height = size.Height
 	}
 	upd, cmd = m.wifi.Update(msg)
 	cmds = append(cmds, cmd)
@@ -100,7 +100,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	mainView := m.wifi.View() + "\n" + m.timer.View() + fmt.Sprintf("\n state: %v", m.state)
-	mainView = styles.BorderStyle.Width(m.width).Height(m.height).Render(mainView)
+	mainView = styles.BorderStyle.Width(m.width-2).Height(m.height-2).Render(mainView)
 
 	if m.popup.IsActive {
 		popupLayout := lipgloss.Place(m.width, m.height,
