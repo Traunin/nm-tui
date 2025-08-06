@@ -1,5 +1,5 @@
-// Package popup provides simple popup windows
-package popup
+// Package overlay provides simple popup windows
+package overlay
 
 import (
 	"github.com/alphameo/nm-tui/internal/logger"

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/alphameo/nm-tui/internal/logger"
-	"github.com/alphameo/nm-tui/internal/ui/popup"
+	"github.com/alphameo/nm-tui/internal/ui/overlay"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/wifi"
 	"github.com/charmbracelet/bubbles/timer"
@@ -25,8 +25,8 @@ type Model struct {
 	state        sessionState
 	wifi         wifi.Model
 	timer        timer.Model
-	floatWin     popup.Model
-	notification popup.Model
+	popup        overlay.Model
+	notification overlay.Model
 	width        int
 	height       int
 }
@@ -34,12 +34,12 @@ type Model struct {
 func New() Model {
 	w := wifi.New(30, 20)
 	t := timer.New(time.Hour)
-	f := popup.New(NewTextModel(), 150, 30)
-	n := popup.New(NewTextModel(), 100, 10)
+	p := overlay.New(NewTextModel(), 150, 30)
+	n := overlay.New(NewTextModel(), 100, 10)
 	m := Model{
 		wifi:         *w,
 		timer:        t,
-		floatWin:     *f,
+		popup:        *p,
 		notification: *n,
 	}
 	return m
@@ -49,7 +49,7 @@ func (m Model) Init() tea.Cmd {
 	return tea.Batch(
 		m.timer.Init(),
 		m.wifi.Init(),
-		m.floatWin.Init(),
+		m.popup.Init(),
 		m.notification.Init(),
 	)
 }
@@ -60,11 +60,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var upd tea.Model
 	if m.notification.IsActive {
 		upd, cmd = m.notification.Update(msg)
-		m.notification = upd.(popup.Model)
+		m.notification = upd.(overlay.Model)
 		cmds = append(cmds, cmd)
-	} else if m.floatWin.IsActive {
-		upd, cmd = m.floatWin.Update(msg)
-		m.floatWin = upd.(popup.Model)
+	} else if m.popup.IsActive {
+		upd, cmd = m.popup.Update(msg)
+		m.popup = upd.(overlay.Model)
 		cmds = append(cmds, cmd)
 	} else {
 		switch msg := msg.(type) {
@@ -79,7 +79,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.state = wifiView
 				}
 			case "o":
-				m.floatWin.IsActive = true
+				m.popup.IsActive = true
 			case "n":
 				m.notify("xdd")
 			}
@@ -102,22 +102,22 @@ func (m Model) View() string {
 	mainView := m.wifi.View() + "\n" + m.timer.View() + fmt.Sprintf("\n state: %v", m.state)
 	mainView = styles.BorderStyle.Width(m.width).Height(m.height).Render(mainView)
 
-	if m.floatWin.IsActive {
+	if m.popup.IsActive {
 		popupLayout := lipgloss.Place(m.width, m.height,
 			lipgloss.Center, lipgloss.Center,
-			m.floatWin.View(),
+			m.popup.View(),
 		)
 		mainView = popupLayout
 	}
 	if m.notification.IsActive {
-		mainView = popup.Compose(m.notification.View(), mainView, 12, 12)
+		mainView = overlay.Compose(m.notification.View(), mainView, 12, 12)
 	}
 	return mainView
 }
 
 func (m *Model) showPopup(content tea.Model) {
-	m.floatWin.IsActive = true
-	m.floatWin.Content = content
+	m.popup.IsActive = true
+	m.popup.Content = content
 }
 
 func (m *Model) notify(text string) {
