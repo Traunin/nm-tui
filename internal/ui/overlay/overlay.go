@@ -11,8 +11,8 @@ import (
 type Model struct {
 	Content  tea.Model
 	IsActive bool
-	Width    int
-	Height   int
+	Width    int // Set to positive if you want specific width
+	Height   int // Set to positive if you want specific height
 }
 
 func (m Model) Init() tea.Cmd {
@@ -34,12 +34,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	if m.Content == nil {
+		return ""
+	}
 	overlay := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		Width(m.Width).
-		Height(m.Height).
 		Align(lipgloss.Center, lipgloss.Center).
 		Foreground(lipgloss.Color("#ffffff"))
+	if m.Width > 0 {
+		overlay.Width(m.Width)
+	}
+	if m.Height > 0 {
+		overlay.Height(m.Height)
+	}
 	return overlay.Render(m.Content.View())
 }
 
