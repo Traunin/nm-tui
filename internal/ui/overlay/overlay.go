@@ -1,4 +1,4 @@
-// Package overlay provides simple popup windows
+// Package overlay provides simple overlay windows
 package overlay
 
 import (
