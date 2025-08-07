@@ -32,9 +32,7 @@ func resolvePos(fgW, fgH, bgW, bgH int, XAnch, YAnch Anchor, xOffset, yOffset in
 func Compose(fg, bg string, xAnchor, yAnchor Anchor, xOffset, yOffset int) string {
 	fgW, fgH := lipgloss.Size(fg)
 	bgW, bgH := lipgloss.Size(bg)
-
 	fgXmin, fgYmin := resolvePos(fgW, fgH, bgW, bgH, xAnchor, yAnchor, xOffset, yOffset)
-
 	fgXmax := fgXmin + fgW
 	fgYmax := fgYmin + fgH
 
@@ -60,13 +58,14 @@ func Compose(fg, bg string, xAnchor, yAnchor Anchor, xOffset, yOffset int) strin
 			sb.WriteString(bgLine)
 			continue
 		}
+
 		if fgXmin > 0 {
 			left := ansi.Truncate(bgLine, fgXmin, "")
 			sb.WriteString(left)
 		}
+
 		fgLine := fgLines[fgInd]
 		fgInd++
-
 		if fgXmin < 0 {
 			fgLine = ansi.TruncateLeft(fgLine, -fgXmin, "")
 		}
@@ -77,6 +76,7 @@ func Compose(fg, bg string, xAnchor, yAnchor Anchor, xOffset, yOffset int) strin
 			sb.WriteString(ansi.Truncate(fgLine, fgW-fgXmax+bgW, ""))
 			continue
 		}
+
 		right := ansi.TruncateLeft(bgLine, fgXmax, "")
 		sb.WriteString(right)
 	}

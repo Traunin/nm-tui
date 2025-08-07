@@ -48,17 +48,17 @@ func (m Model) View() string {
 	if m.Content == nil {
 		return ""
 	}
-	overlay := lipgloss.NewStyle().
+	layout := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		Align(lipgloss.Center, lipgloss.Center).
 		Foreground(lipgloss.Color("#ffffff"))
 	if m.Width > 0 {
-		overlay.Width(m.Width)
+		layout.Width(m.Width)
 	}
 	if m.Height > 0 {
-		overlay.Height(m.Height)
+		layout.Height(m.Height)
 	}
-	return overlay.Render(m.Content.View())
+	return layout.Render(m.Content.View())
 }
 
 func New(content tea.Model) *Model {
