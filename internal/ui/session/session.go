@@ -82,7 +82,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.state = wifiView
 				}
 			case "o":
-				m.popup.IsActive = true
+				cmd = m.showPopup(nil)
+				cmds = append(cmds, cmd)
 			case "n":
 				m.notify("xddddddd\nddddd")
 			}
@@ -114,9 +115,12 @@ func (m Model) View() string {
 	return mainView
 }
 
-func (m *Model) showPopup(content tea.Model) {
+func (m *Model) showPopup(content tea.Model) tea.Cmd {
 	m.popup.IsActive = true
-	m.popup.Content = content
+	if content != nil {
+		m.popup.Content = content
+	}
+	return m.popup.Content.Init()
 }
 
 func (m *Model) notify(text string) {
