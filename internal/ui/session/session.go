@@ -33,12 +33,16 @@ type Model struct {
 func New() Model {
 	w := wifi.New(30, 20)
 	t := timer.New(time.Hour)
-	p := overlay.New(NewTextModel())
+	p := overlay.New(wifi.NewConnector("aaa"))
+	p.Width = 100
+	p.Height = 10
 	p.XAnchor = overlay.Center
 	p.YAnchor = overlay.Center
 	n := overlay.New(NewTextModel())
 	n.XAnchor = overlay.Center
 	n.YAnchor = overlay.Center
+	n.Width = 100
+	n.Height = 10
 	m := Model{
 		wifi:         *w,
 		timer:        t,
