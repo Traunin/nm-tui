@@ -27,6 +27,9 @@ type Model struct {
 }
 
 func (m Model) Init() tea.Cmd {
+	if m.Content == nil {
+		return nil
+	}
 	return m.Content.Init()
 }
 
