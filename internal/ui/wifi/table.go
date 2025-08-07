@@ -1,4 +1,3 @@
-// Package wifi provides interaction with wifi networks from nmcli
 package wifi
 
 import (
@@ -14,13 +13,13 @@ import (
 
 type updatedRowsMsg []table.Row
 
-type Model struct {
+type TableModel struct {
 	wifiTable       table.Model
 	updatingSpinner spinner.Model
 	updating        bool
 }
 
-func New(width int, height int) *Model {
+func NewTableModel(width int, height int) *TableModel {
 	offset := 4
 	signalWidth := 3
 	ssidWidth := width - signalWidth - offset
@@ -36,15 +35,15 @@ func New(width int, height int) *Model {
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
-	m := &Model{wifiTable: t, updatingSpinner: s, updating: true}
+	m := &TableModel{wifiTable: t, updatingSpinner: s, updating: true}
 	return m
 }
 
-func (m Model) Init() tea.Cmd {
+func (m TableModel) Init() tea.Cmd {
 	return tea.Batch(m.updatingSpinner.Tick, m.updateWifiList())
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
@@ -75,7 +74,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m Model) View() string {
+func (m TableModel) View() string {
 	out := m.wifiTable.View()
 	var symbol string
 	if m.updating {
@@ -87,7 +86,7 @@ func (m Model) View() string {
 	return styles.BorderStyle.Render(out)
 }
 
-func (m *Model) updateWifiList() tea.Cmd {
+func (m *TableModel) updateWifiList() tea.Cmd {
 	return func() tea.Msg {
 		rows := getWifiRows()
 		return updatedRowsMsg(rows)

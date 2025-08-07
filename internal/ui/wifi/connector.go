@@ -40,8 +40,8 @@ func (m ConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyEnter:
 
-		// case tea.KeyCtrlQ, tea.KeyEsc:
-		// 	return m, tea.Quit
+			// case tea.KeyCtrlQ, tea.KeyEsc:
+			// 	return m, tea.Quit
 		}
 	case errMsg:
 		m.err = msg

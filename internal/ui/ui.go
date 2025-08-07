@@ -1,5 +1,5 @@
-// Package session contains Model, which represents main window of TUI
-package session
+// Package ui contains Model, which represents main window of TUI
+package ui
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ const (
 
 type Model struct {
 	state        sessionState
-	wifi         wifi.Model
+	wifi         wifi.TableModel
 	timer        timer.Model
 	popup        overlay.Model
 	notification overlay.Model
@@ -31,7 +31,7 @@ type Model struct {
 }
 
 func New() Model {
-	w := wifi.New(30, 20)
+	w := wifi.NewTableModel(30, 20)
 	t := timer.New(time.Hour)
 	p := overlay.New(wifi.NewConnector("aaa"))
 	p.Width = 100
@@ -100,7 +100,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	upd, cmd = m.wifi.Update(msg)
 	cmds = append(cmds, cmd)
-	m.wifi = upd.(wifi.Model)
+	m.wifi = upd.(wifi.TableModel)
 	m.timer, cmd = m.timer.Update(msg)
 	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
