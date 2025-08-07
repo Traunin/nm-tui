@@ -2,17 +2,28 @@
 package overlay
 
 import (
-	"github.com/alphameo/nm-tui/internal/logger"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+)
+
+type Anchor int
+
+const (
+	Begin Anchor = iota
+	Center
+	End
 )
 
 // Model contains any tea.Model inside
 type Model struct {
 	Content  tea.Model
-	IsActive bool
-	Width    int // Set to positive if you want specific width
-	Height   int // Set to positive if you want specific height
+	IsActive bool   // Flag for upper composition (Default: `false`)
+	Width    int    // Set to positive if you want specific width (Default: `0`)
+	Height   int    // Set to positive if you want specific height (Default: `0`)
+	XAnchor  Anchor // Start position (Default: `Begin` - very top)
+	YAnchor  Anchor // Start position (Default: `Begin` - very left)
+	XOffset  int    // Counts from the `XAnchor` (Default: `0`)
+	YOffset  int    // Counts from the `YAnchor` (Default: `0`)
 }
 
 func (m Model) Init() tea.Cmd {
@@ -50,9 +61,12 @@ func (m Model) View() string {
 	return overlay.Render(m.Content.View())
 }
 
-func New(content tea.Model, width int, heigh int) *Model {
-	if content == nil {
-		logger.ErrorLog.Panicln("content is nil")
+func New(content tea.Model) *Model {
+	return &Model{
+		Content: content,
 	}
-	return &Model{content, false, width, heigh}
+}
+
+func (m *Model) Place(bg string) string {
+	return Compose(m.View(), bg, m.XAnchor, m.YAnchor, m.XOffset, m.YOffset)
 }

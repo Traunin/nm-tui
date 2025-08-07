@@ -11,7 +11,6 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/wifi"
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type sessionState uint
@@ -34,8 +33,12 @@ type Model struct {
 func New() Model {
 	w := wifi.New(30, 20)
 	t := timer.New(time.Hour)
-	p := overlay.New(NewTextModel(), 150, 30)
-	n := overlay.New(NewTextModel(), 100, 10)
+	p := overlay.New(NewTextModel())
+	p.XAnchor = overlay.Center
+	p.YAnchor = overlay.Center
+	n := overlay.New(NewTextModel())
+	n.XAnchor = overlay.Center
+	n.YAnchor = overlay.Center
 	m := Model{
 		wifi:         *w,
 		timer:        t,
@@ -81,7 +84,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "o":
 				m.popup.IsActive = true
 			case "n":
-				m.notify("xdd")
+				m.notify("xddddddd\nddddd")
 			}
 		}
 	}
@@ -100,17 +103,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	mainView := m.wifi.View() + "\n" + m.timer.View() + fmt.Sprintf("\n state: %v", m.state)
-	mainView = styles.BorderStyle.Width(m.width-2).Height(m.height-2).Render(mainView)
+	mainView = styles.BorderStyle.Width(m.width - 2).Height(m.height - 2).Render(mainView)
 
 	if m.popup.IsActive {
-		popupLayout := lipgloss.Place(m.width, m.height,
-			lipgloss.Center, lipgloss.Center,
-			m.popup.View(),
-		)
-		mainView = popupLayout
+		mainView = m.popup.Place(mainView)
 	}
 	if m.notification.IsActive {
-		mainView = overlay.Compose(m.notification.View(), mainView, 12, 12)
+		mainView = m.notification.Place(mainView)
 	}
 	return mainView
 }
