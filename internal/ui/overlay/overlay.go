@@ -53,10 +53,10 @@ func (m Model) View() string {
 		Align(lipgloss.Center, lipgloss.Center).
 		Foreground(lipgloss.Color("#ffffff"))
 	if m.Width > 0 {
-		layout.Width(m.Width)
+		layout = layout.Width(m.Width)
 	}
 	if m.Height > 0 {
-		layout.Height(m.Height)
+		layout = layout.Height(m.Height)
 	}
 	return layout.Render(m.Content.View())
 }
