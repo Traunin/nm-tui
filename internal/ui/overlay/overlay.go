@@ -14,6 +14,16 @@ const (
 	End
 )
 
+type ContentLoadedMsg struct {
+	Model tea.Model
+}
+
+func LoadContent(model tea.Model) tea.Cmd {
+	return func() tea.Msg {
+		return ContentLoadedMsg{Model: model}
+	}
+}
+
 // Model contains any tea.Model inside
 type Model struct {
 	Content  tea.Model
