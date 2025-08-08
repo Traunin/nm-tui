@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/alphameo/nm-tui/internal/nmcli"
+	"github.com/alphameo/nm-tui/internal/ui/overlay"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
@@ -59,6 +60,8 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.updatingSpinner.Tick,
 			}
 			return m, tea.Batch(cmds...)
+		case "enter":
+			return m, overlay.LoadContent(NewConnector(m.wifiTable.SelectedRow()[0]))
 		}
 	case updatedRowsMsg:
 		m.updating = false

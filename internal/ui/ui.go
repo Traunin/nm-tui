@@ -91,6 +91,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "n":
 				m.notify("xddddddd\nddddd")
 			}
+		case overlay.ContentLoadedMsg:
+			m.showPopup(msg.Model)
 		}
 	}
 	size, ok := msg.(tea.WindowSizeMsg)
