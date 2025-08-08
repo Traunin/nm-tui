@@ -1,3 +1,4 @@
+// Package styles contains common styles for whole app
 package styles
 
 import (

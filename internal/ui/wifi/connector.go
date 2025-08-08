@@ -1,3 +1,4 @@
+// Package wifi contains a bunch of windows for wifi control
 package wifi
 
 import (
