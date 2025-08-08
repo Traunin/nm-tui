@@ -24,6 +24,14 @@ func LoadContent(model tea.Model) tea.Cmd {
 	}
 }
 
+type CloseMsg bool
+
+func Close() tea.Cmd {
+	return func() tea.Msg {
+		return CloseMsg(true)
+	}
+}
+
 // Model contains any tea.Model inside
 type Model struct {
 	Content  tea.Model
@@ -49,9 +57,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+q", "esc", "ctrl+c":
-			m.IsActive = false
-			return m, nil
+			return m, Close()
 		}
+	case CloseMsg:
+		m.IsActive = false
+		return m, nil
 	}
 	m.Content, cmd = m.Content.Update(msg)
 	return m, cmd
