@@ -22,7 +22,7 @@ const (
 
 type Model struct {
 	state        sessionState
-	wifi         wifi.TableModel
+	wifiTable    wifi.TableModel
 	timer        timer.Model
 	popup        overlay.Model
 	notification overlay.Model
@@ -44,7 +44,7 @@ func New() Model {
 	n.Width = 100
 	n.Height = 10
 	m := Model{
-		wifi:         *w,
+		wifiTable:    *w,
 		timer:        t,
 		popup:        *p,
 		notification: *n,
@@ -55,7 +55,7 @@ func New() Model {
 func (m Model) Init() tea.Cmd {
 	return tea.Batch(
 		m.timer.Init(),
-		m.wifi.Init(),
+		m.wifiTable.Init(),
 		m.popup.Init(),
 		m.notification.Init(),
 	)
@@ -92,7 +92,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.notify("xddddddd\nddddd")
 			}
 		case overlay.ContentLoadedMsg:
-			m.showPopup(msg.Model)
+			cmd = m.showPopup(msg.Model)
+			cmds = append(cmds, cmd)
 		}
 	}
 	size, ok := msg.(tea.WindowSizeMsg)
@@ -100,16 +101,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = size.Width
 		m.height = size.Height
 	}
-	upd, cmd = m.wifi.Update(msg)
+	upd, cmd = m.wifiTable.Update(msg)
 	cmds = append(cmds, cmd)
-	m.wifi = upd.(wifi.TableModel)
+	m.wifiTable = upd.(wifi.TableModel)
 	m.timer, cmd = m.timer.Update(msg)
 	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
-	mainView := m.wifi.View() + "\n" + m.timer.View() + fmt.Sprintf("\n state: %v", m.state)
+	mainView := m.wifiTable.View() + "\n" + m.timer.View() + fmt.Sprintf("\n state: %v", m.state)
 	mainView = styles.BorderStyle.Width(m.width - 2).Height(m.height - 2).Render(mainView)
 
 	if m.popup.IsActive {
