@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/alphameo/nm-tui/internal/logger"
+	"github.com/alphameo/nm-tui/internal/nmcli"
+	"github.com/alphameo/nm-tui/internal/ui/overlay"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -40,9 +42,10 @@ func (m ConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEnter:
-
-			// case tea.KeyCtrlQ, tea.KeyEsc:
-			// 	return m, tea.Quit
+			pw := m.password.Value()
+			nmcli.ConnectWifi(&m.SSID, &pw)
+			logger.InfoLog.Println(nmcli.CheckPassword(&m.SSID))
+			return m, overlay.Close()
 		}
 	case errMsg:
 		m.err = msg
@@ -50,7 +53,6 @@ func (m ConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	m.password, cmd = m.password.Update(msg)
-	logger.InfoLog.Println("l")
 	return m, cmd
 }
 
