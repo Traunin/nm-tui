@@ -14,24 +14,6 @@ const (
 	End
 )
 
-type ContentLoadedMsg struct {
-	Model tea.Model
-}
-
-func LoadContent(model tea.Model) tea.Cmd {
-	return func() tea.Msg {
-		return ContentLoadedMsg{Model: model}
-	}
-}
-
-type CloseMsg bool
-
-func Close() tea.Cmd {
-	return func() tea.Msg {
-		return CloseMsg(true)
-	}
-}
-
 // Model contains any tea.Model inside
 type Model struct {
 	Content  tea.Model
@@ -92,4 +74,20 @@ func New(content tea.Model) *Model {
 
 func (m *Model) Place(bg string) string {
 	return Compose(m.View(), bg, m.XAnchor, m.YAnchor, m.XOffset, m.YOffset)
+}
+
+type LoadedContentMsg tea.Model
+
+func LoadContent(model tea.Model) tea.Cmd {
+	return func() tea.Msg {
+		return LoadedContentMsg(model)
+	}
+}
+
+type CloseMsg bool
+
+func Close() tea.Cmd {
+	return func() tea.Msg {
+		return CloseMsg(true)
+	}
 }

@@ -106,8 +106,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			upd, cmd = m.wifiTable.Update(msg)
 			m.wifiTable = upd.(wifi.TableModel)
 			return m, cmd
-		case overlay.ContentLoadedMsg:
-			cmd = m.showPopup(msg.Model)
+		case overlay.LoadedContentMsg:
+			cmd = m.showPopup(msg)
 			return m, cmd
 		}
 		upd, cmd = m.wifiTable.Update(msg)
