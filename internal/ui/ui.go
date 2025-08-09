@@ -9,6 +9,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/overlay"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/wifi"
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -63,16 +64,28 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	var cmds []tea.Cmd
 	var upd tea.Model
+	switch msg := msg.(type) {
+	case timer.TickMsg:
+		m.timer, cmd = m.timer.Update(msg)
+		return m, cmd
+	case spinner.TickMsg:
+		upd, cmd = m.wifiTable.Update(msg)
+		m.wifiTable = upd.(wifi.TableModel)
+		return m, cmd
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+		return m, nil
+	}
 	if m.notification.IsActive {
 		upd, cmd = m.notification.Update(msg)
 		m.notification = upd.(overlay.Model)
-		cmds = append(cmds, cmd)
+		return m, cmd
 	} else if m.popup.IsActive {
 		upd, cmd = m.popup.Update(msg)
 		m.popup = upd.(overlay.Model)
-		cmds = append(cmds, cmd)
+		return m, cmd
 	} else {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
@@ -85,28 +98,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				} else {
 					m.state = wifiView
 				}
+				return m, cmd
 			case "o":
 				cmd = m.showPopup(nil)
-				cmds = append(cmds, cmd)
+				return m, cmd
 			case "n":
 				m.notify("xddddddd\nddddd")
+				return m, cmd
 			}
+			upd, cmd = m.wifiTable.Update(msg)
+			m.wifiTable = upd.(wifi.TableModel)
+			return m, cmd
 		case overlay.ContentLoadedMsg:
 			cmd = m.showPopup(msg.Model)
-			cmds = append(cmds, cmd)
+			return m, cmd
 		}
+		upd, cmd = m.wifiTable.Update(msg)
+		m.wifiTable = upd.(wifi.TableModel)
+		return m, cmd
 	}
-	size, ok := msg.(tea.WindowSizeMsg)
-	if ok {
-		m.width = size.Width
-		m.height = size.Height
-	}
-	upd, cmd = m.wifiTable.Update(msg)
-	cmds = append(cmds, cmd)
-	m.wifiTable = upd.(wifi.TableModel)
-	m.timer, cmd = m.timer.Update(msg)
-	cmds = append(cmds, cmd)
-	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
