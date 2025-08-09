@@ -106,7 +106,6 @@ func WifiGetPassword(ssid *string) (string, error) {
 func WifiDeleteConnection(ssid *string) error {
 	args := []string{"connection", "delete", *ssid}
 	out, err := exec.Command(nm, args...).Output()
-	logger.InfoLog.Println(nm, args, "\n", string(out), err)
 	if err == nil {
 		logger.InfoLog.Printf("Connection to wifi %s was deleted (%s %s): %s", *ssid, nm, args, string(out))
 	} else {
