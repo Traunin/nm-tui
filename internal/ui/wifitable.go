@@ -46,8 +46,6 @@ func (m WifiTableModel) Init() tea.Cmd {
 }
 
 func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -56,11 +54,7 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 			m.updating = true
-			cmds = []tea.Cmd{
-				UpdateWifiRows,
-				m.updatingSpinner.Tick,
-			}
-			return m, tea.Batch(cmds...)
+			return m, tea.Batch(UpdateWifiRows, m.updatingSpinner.Tick)
 		case "enter":
 			row := m.wifiTable.SelectedRow()
 			if row != nil {
@@ -73,6 +67,9 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.wifiTable.SetRows(msg)
 		return m, nil
 	}
+
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
 	if m.updating {
 		m.updatingSpinner, cmd = m.updatingSpinner.Update(msg)
 		cmds = append(cmds, cmd)
