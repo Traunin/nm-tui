@@ -44,6 +44,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case CloseMsg:
 		m.IsActive = false
 		return m, nil
+	case LoadedContentMsg:
+		if msg != nil {
+			m.Content = msg
+			return m, m.Content.Init()
+		}
+		return m, nil
 	}
 	m.Content, cmd = m.Content.Update(msg)
 	return m, cmd
