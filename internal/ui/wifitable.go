@@ -11,8 +11,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type updatedRowsMsg []table.Row
-
 type WifiTableModel struct {
 	wifiTable       table.Model
 	updatingSpinner spinner.Model
@@ -44,7 +42,7 @@ func NewWifiTableModel(width int, height int) *WifiTableModel {
 }
 
 func (m WifiTableModel) Init() tea.Cmd {
-	return tea.Batch(m.updatingSpinner.Tick, UpdateWifiList)
+	return tea.Batch(m.updatingSpinner.Tick, UpdateWifiRows)
 }
 
 func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -59,7 +57,7 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m.updating = true
 			cmds = []tea.Cmd{
-				UpdateWifiList,
+				UpdateWifiRows,
 				m.updatingSpinner.Tick,
 			}
 			return m, tea.Batch(cmds...)
@@ -96,7 +94,9 @@ func (m WifiTableModel) View() string {
 	return styles.BorderStyle.Render(out)
 }
 
-func UpdateWifiList() tea.Msg {
+type updatedRowsMsg []table.Row
+
+func UpdateWifiRows() tea.Msg {
 	rows := getWifiRows()
 	return updatedRowsMsg(rows)
 }
