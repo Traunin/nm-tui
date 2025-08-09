@@ -21,10 +21,12 @@ type TableModel struct {
 }
 
 func NewTableModel(width int, height int) *TableModel {
-	offset := 4
+	offset := 6
 	signalWidth := 3
-	ssidWidth := width - signalWidth - offset
+	connectionFlagWidth := 1
+	ssidWidth := width - signalWidth - offset - connectionFlagWidth
 	cols := []table.Column{
+		{Title: "󱘖", Width: connectionFlagWidth},
 		{Title: "SSID", Width: ssidWidth},
 		{Title: "", Width: signalWidth},
 	}
@@ -63,7 +65,7 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			row := m.wifiTable.SelectedRow()
 			if row != nil {
-				return m, overlay.LoadContent(NewConnector(row[0]))
+				return m, overlay.LoadContent(NewConnector(row[1]))
 			}
 			return m, nil
 		}
@@ -107,7 +109,11 @@ func getWifiRows() []table.Row {
 	}
 	rows := []table.Row{}
 	for _, wifiNet := range list {
-		rows = append(rows, table.Row{wifiNet.SSID, fmt.Sprint(wifiNet.Signal)})
+		var connectionFlag string
+		if wifiNet.Active {
+			connectionFlag = ""
+		}
+		rows = append(rows, table.Row{connectionFlag, wifiNet.SSID, fmt.Sprint(wifiNet.Signal)})
 	}
 	return rows
 }
