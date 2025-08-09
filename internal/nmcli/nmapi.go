@@ -96,8 +96,9 @@ func WifiGetPassword(ssid *string) (string, error) {
 		logger.ErrorLog.Printf("Error retrieving password to wifi %s (%s %s): %s\n", *ssid, nm, args, err.Error())
 		return "", err
 	}
+	pw := strings.Trim(string(out), " \n")
 	logger.InfoLog.Printf("Got password to wifi %s (%s %s)\n", *ssid, nm, args)
-	return string(out), nil
+	return pw, nil
 }
 
 // WifiDeleteConnection removes wifi-network with given ssid from saved connections.
@@ -107,7 +108,7 @@ func WifiDeleteConnection(ssid *string) error {
 	out, err := exec.Command(nm, args...).Output()
 	logger.InfoLog.Println(nm, args, "\n", string(out), err)
 	if err == nil {
-		logger.InfoLog.Printf("Connection to wifi %s was deleted (%s %s): %s\n", *ssid, nm, args, string(out))
+		logger.InfoLog.Printf("Connection to wifi %s was deleted (%s %s): %s", *ssid, nm, args, string(out))
 	} else {
 		logger.ErrorLog.Printf("Error deleting connection to wifi %s (%s %s): %s\n", *ssid, nm, args, err.Error())
 	}
