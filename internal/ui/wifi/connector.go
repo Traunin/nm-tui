@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/alphameo/nm-tui/internal/nmcli"
+	"github.com/alphameo/nm-tui/internal/ui/label"
 	"github.com/alphameo/nm-tui/internal/ui/overlay"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -45,11 +46,12 @@ func (m ConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEnter:
+			cmd = overlay.LoadContent(label.New("connecting"))
 			go func() {
 				pw := m.password.Value()
 				nmcli.WifiConnect(&m.SSID, &pw)
 			}()
-			return m, overlay.Close()
+			return m, tea.Batch(cmd, UpdateWifiList, overlay.Close())
 		case tea.KeyCtrlR:
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
