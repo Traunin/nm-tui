@@ -45,8 +45,10 @@ func (m ConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEnter:
-			pw := m.password.Value()
-			nmcli.WifiConnect(&m.SSID, &pw)
+			go func() {
+				pw := m.password.Value()
+				nmcli.WifiConnect(&m.SSID, &pw)
+			}()
 			return m, overlay.Close()
 		case tea.KeyCtrlR:
 			if m.password.EchoMode == textinput.EchoPassword {
