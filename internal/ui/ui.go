@@ -8,7 +8,6 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/label"
 	"github.com/alphameo/nm-tui/internal/ui/overlay"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
-	"github.com/alphameo/nm-tui/internal/ui/wifi"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
@@ -23,7 +22,7 @@ const (
 
 type Model struct {
 	state        sessionState
-	wifiTable    wifi.TableModel
+	wifiTable    WifiTableModel
 	timer        timer.Model
 	popup        overlay.Model
 	notification overlay.Model
@@ -32,7 +31,7 @@ type Model struct {
 }
 
 func New() Model {
-	w := wifi.NewTableModel(51, 20)
+	w := NewWifiTableModel(51, 20)
 	t := timer.New(time.Hour)
 	p := overlay.New(nil)
 	p.Width = 100
@@ -71,7 +70,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	case spinner.TickMsg:
 		upd, cmd = m.wifiTable.Update(msg)
-		m.wifiTable = upd.(wifi.TableModel)
+		m.wifiTable = upd.(WifiTableModel)
 		return m, cmd
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -101,7 +100,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, cmd
 			}
 			upd, cmd = m.wifiTable.Update(msg)
-			m.wifiTable = upd.(wifi.TableModel)
+			m.wifiTable = upd.(WifiTableModel)
 			return m, cmd
 		case PopupContentMsg:
 			cmd = m.showPopup(msg)
@@ -111,7 +110,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		}
 		upd, cmd = m.wifiTable.Update(msg)
-		m.wifiTable = upd.(wifi.TableModel)
+		m.wifiTable = upd.(WifiTableModel)
 		return m, cmd
 	}
 }

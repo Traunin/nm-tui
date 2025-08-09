@@ -1,10 +1,9 @@
-package wifi
+package ui
 
 import (
 	"fmt"
 
 	"github.com/alphameo/nm-tui/internal/nmcli"
-	"github.com/alphameo/nm-tui/internal/ui/overlay"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
@@ -14,13 +13,13 @@ import (
 
 type updatedRowsMsg []table.Row
 
-type TableModel struct {
+type WifiTableModel struct {
 	wifiTable       table.Model
 	updatingSpinner spinner.Model
 	updating        bool
 }
 
-func NewTableModel(width int, height int) *TableModel {
+func NewWifiTableModel(width int, height int) *WifiTableModel {
 	offset := 8
 	signalWidth := 3
 	connectionFlagWidth := 1
@@ -40,15 +39,15 @@ func NewTableModel(width int, height int) *TableModel {
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
-	m := &TableModel{wifiTable: t, updatingSpinner: s, updating: true}
+	m := &WifiTableModel{wifiTable: t, updatingSpinner: s, updating: true}
 	return m
 }
 
-func (m TableModel) Init() tea.Cmd {
+func (m WifiTableModel) Init() tea.Cmd {
 	return tea.Batch(m.updatingSpinner.Tick, UpdateWifiList)
 }
 
-func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
@@ -67,7 +66,7 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			row := m.wifiTable.SelectedRow()
 			if row != nil {
-				return m, overlay.LoadContent(NewConnector(row[1]))
+				return m, ShowPopup(NewWifiConnector(row[1]))
 			}
 			return m, nil
 		}
@@ -85,7 +84,7 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m TableModel) View() string {
+func (m WifiTableModel) View() string {
 	out := m.wifiTable.View()
 	var symbol string
 	if m.updating {

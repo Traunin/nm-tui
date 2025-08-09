@@ -1,5 +1,4 @@
-// Package wifi contains a bunch of windows for wifi control
-package wifi
+package ui
 
 import (
 	"fmt"
@@ -12,7 +11,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type ConnectorModel struct {
+type WifiConnectorModel struct {
 	SSID     string
 	password textinput.Model
 	err      error
@@ -20,7 +19,7 @@ type ConnectorModel struct {
 
 type errMsg error
 
-func NewConnector(ssid string) *ConnectorModel {
+func NewWifiConnector(ssid string) *WifiConnectorModel {
 	p := textinput.New()
 	p.Focus()
 	p.Width = 20
@@ -32,14 +31,14 @@ func NewConnector(ssid string) *ConnectorModel {
 	if err == nil {
 		p.SetValue(pw)
 	}
-	return &ConnectorModel{SSID: ssid, password: p}
+	return &WifiConnectorModel{SSID: ssid, password: p}
 }
 
-func (m ConnectorModel) Init() tea.Cmd {
+func (m WifiConnectorModel) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m ConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -68,7 +67,7 @@ func (m ConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m ConnectorModel) View() string {
+func (m WifiConnectorModel) View() string {
 	pwInput := styles.BorderStyle.Render(m.password.View())
 	return fmt.Sprintf("SSID: %s\n%v", m.SSID, pwInput)
 }
