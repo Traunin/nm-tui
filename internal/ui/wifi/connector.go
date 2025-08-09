@@ -48,6 +48,12 @@ func (m ConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			pw := m.password.Value()
 			nmcli.WifiConnect(&m.SSID, &pw)
 			return m, overlay.Close()
+		case tea.KeyCtrlR:
+			if m.password.EchoMode == textinput.EchoPassword {
+				m.password.EchoMode = textinput.EchoNormal
+			} else {
+				m.password.EchoMode = textinput.EchoPassword
+			}
 		}
 	case errMsg:
 		m.err = msg
