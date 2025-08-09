@@ -97,7 +97,7 @@ func (m *TableModel) updateWifiList() tea.Cmd {
 }
 
 func getWifiRows() []table.Row {
-	list, err := nmcli.ScanWifi()
+	list, err := nmcli.WifiScan()
 	if err != nil {
 		fmt.Println(fmt.Errorf("error: %s", err.Error()))
 	}

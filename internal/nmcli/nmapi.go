@@ -16,9 +16,9 @@ type WifiNet struct {
 	Signal int
 }
 
-// ScanWifi shows list of wifi-networks able to be connected
+// WifiScan shows list of wifi-networks able to be connected
 // CMD: nmcli -t -f SSID,SIGNAL dev wifi
-func ScanWifi() ([]WifiNet, error) {
+func WifiScan() ([]WifiNet, error) {
 	out, err := exec.Command(nm, "-t", "-f", "SSID,SIGNAL", "dev", "wifi").Output()
 	if err != nil {
 		return nil, err
@@ -46,29 +46,28 @@ func ScanWifi() ([]WifiNet, error) {
 	return results, nil
 }
 
-// ConnectWifi connects to wifi-network with given ssid using given password.
+// WifiConnect connects to wifi-network with given ssid using given password.
 // CMD: nmcli device wifi connect "<SSID>" password "<PASSWORD>"
-func ConnectWifi(ssid *string, password *string) error {
-	// INFO: after nmcli 1.48.10 connection via password not able with saved networks
-	DeleteConnection(ssid)
+func WifiConnect(ssid *string, password *string) error {
+	WifiDeleteConnection(ssid) // FIX: after nmcli 1.48.10 connection via password not able with saved networks
 	args := []string{"device", "wifi", "connect", *ssid, "password", *password}
 	out, err := exec.Command(nm, args...).Output()
 	logger.InfoLog.Println(nm, args, "\n", string(out), err)
 	return err
 }
 
-// ConnectSaved connects to wifi-network with given ssid if its password is saved.
+// WifiConnectSaved connects to wifi-network with given ssid if its password is saved.
 // CMD: nmcli connection up "<SSID>"
-func ConnectSaved(ssid *string) error {
+func WifiConnectSaved(ssid *string) error {
 	args := []string{"connection", "up", *ssid}
 	out, err := exec.Command(nm, args...).Output()
 	logger.InfoLog.Println(nm, args, "\n", string(out), err)
 	return err
 }
 
-// GetConnected gives table of saved connections.
+// WifiGetConnected gives table of saved connections.
 // CMD: nmcli -t -f NAME connection show
-func GetConnected() ([]string, error) {
+func WifiGetConnected() ([]string, error) {
 	args := []string{"-t", "-f", "NAME", "connection", "show"}
 	out, err := exec.Command(nm, args...).Output()
 	if err != nil {
@@ -79,7 +78,7 @@ func GetConnected() ([]string, error) {
 	return result, nil
 }
 
-func CheckPassword(ssid *string) (string, error) {
+func WifiGetPassword(ssid *string) (string, error) {
 	args := []string{"-s", "-g", "802-11-wireless-security.psk", "connection", "show", *ssid}
 	out, err := exec.Command(nm, args...).Output()
 	if err != nil {
@@ -89,18 +88,18 @@ func CheckPassword(ssid *string) (string, error) {
 	return string(out), nil
 }
 
-// DeleteConnection removes wifi-network with given ssid from saved connections.
+// WifiDeleteConnection removes wifi-network with given ssid from saved connections.
 // CMD: nmcli connection delete "<SSID>"
-func DeleteConnection(ssid *string) error {
+func WifiDeleteConnection(ssid *string) error {
 	args := []string{"connection", "delete", *ssid}
 	out, err := exec.Command(nm, args...).Output()
 	logger.InfoLog.Println(nm, args, "\n", string(out), err)
 	return err
 }
 
-// ConnectVpn connects to vpn with given vpnName
+// VpnConnect connects to vpn with given vpnName
 // CMD: nmcli connection up id "<VPN_NAME>"
-func ConnectVpn(vpnName *string) error {
+func VpnConnect(vpnName *string) error {
 	args := []string{"connection", "up", "id", *vpnName}
 	out, err := exec.Command(nm, args...).Output()
 	logger.InfoLog.Println(nm, args, "\n", string(out), err)

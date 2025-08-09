@@ -27,7 +27,7 @@ func NewConnector(ssid string) *ConnectorModel {
 	p.EchoMode = textinput.EchoPassword
 	p.EchoCharacter = '•'
 	p.Placeholder = "Password"
-	pw, err := nmcli.CheckPassword(&ssid)
+	pw, err := nmcli.WifiGetPassword(&ssid)
 	if err == nil {
 		p.SetValue(pw)
 	}
@@ -46,7 +46,7 @@ func (m ConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyEnter:
 			pw := m.password.Value()
-			nmcli.ConnectWifi(&m.SSID, &pw)
+			nmcli.WifiConnect(&m.SSID, &pw)
 			return m, overlay.Close()
 		}
 	case errMsg:
