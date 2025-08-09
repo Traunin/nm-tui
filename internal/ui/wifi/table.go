@@ -61,7 +61,11 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, tea.Batch(cmds...)
 		case "enter":
-			return m, overlay.LoadContent(NewConnector(m.wifiTable.SelectedRow()[0]))
+			row := m.wifiTable.SelectedRow()
+			if row != nil {
+				return m, overlay.LoadContent(NewConnector(row[0]))
+			}
+			return m, nil
 		}
 	case updatedRowsMsg:
 		m.updating = false
