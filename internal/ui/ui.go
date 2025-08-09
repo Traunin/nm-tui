@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alphameo/nm-tui/internal/logger"
 	"github.com/alphameo/nm-tui/internal/ui/label"
 	"github.com/alphameo/nm-tui/internal/ui/overlay"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
@@ -40,7 +39,7 @@ func New() Model {
 	p.Height = 10
 	p.XAnchor = overlay.Center
 	p.YAnchor = overlay.Center
-	n := overlay.New(label.New("Placeholder"))
+	n := overlay.New(nil)
 	n.XAnchor = overlay.Center
 	n.YAnchor = overlay.Center
 	n.Width = 100
@@ -107,8 +106,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			upd, cmd = m.wifiTable.Update(msg)
 			m.wifiTable = upd.(wifi.TableModel)
 			return m, cmd
-		case overlay.LoadedContentMsg:
+		case PopupContentMsg:
 			cmd = m.showPopup(msg)
+			return m, cmd
+		case NotificationMsg:
+			cmd = m.notify(string(msg))
 			return m, cmd
 		}
 		upd, cmd = m.wifiTable.Update(msg)
@@ -132,18 +134,30 @@ func (m Model) View() string {
 
 func (m *Model) showPopup(content tea.Model) tea.Cmd {
 	m.popup.IsActive = true
-	if content != nil {
-		m.popup.Content = content
-	}
-	return m.popup.Content.Init()
+	p, cmd := m.popup.Update(overlay.LoadedContentMsg(content))
+	m.popup = p.(overlay.Model)
+	return cmd
 }
 
-func (m *Model) notify(text string) {
-	t, ok := m.notification.Content.(label.Model)
-	if !ok {
-		logger.ErrorLog.Println("Invalid Type")
-	}
-	t = label.Model(text)
-	m.notification.Content = t
+func (m *Model) notify(text string) tea.Cmd {
 	m.notification.IsActive = true
+	n, cmd := m.notification.Update(overlay.LoadedContentMsg(label.New(text)))
+	m.notification = n.(overlay.Model)
+	return cmd
+}
+
+type PopupContentMsg tea.Model
+
+func ShowPopup(content tea.Model) tea.Cmd {
+	return func() tea.Msg {
+		return PopupContentMsg(content)
+	}
+}
+
+type NotificationMsg string
+
+func ShowNotification(notification string) tea.Cmd {
+	return func() tea.Msg {
+		return NotificationMsg(notification)
+	}
 }
