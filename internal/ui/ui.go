@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/alphameo/nm-tui/internal/logger"
+	"github.com/alphameo/nm-tui/internal/ui/label"
 	"github.com/alphameo/nm-tui/internal/ui/overlay"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/wifi"
@@ -39,7 +40,7 @@ func New() Model {
 	p.Height = 10
 	p.XAnchor = overlay.Center
 	p.YAnchor = overlay.Center
-	n := overlay.New(NewTextModel())
+	n := overlay.New(label.NewTextModel())
 	n.XAnchor = overlay.Center
 	n.YAnchor = overlay.Center
 	n.Width = 100
@@ -138,30 +139,11 @@ func (m *Model) showPopup(content tea.Model) tea.Cmd {
 }
 
 func (m *Model) notify(text string) {
-	t, ok := m.notification.Content.(TextModel)
+	t, ok := m.notification.Content.(label.Model)
 	if !ok {
 		logger.ErrorLog.Println("Invalid Type")
 	}
-	t.Text = text
+	t = label.Model(text)
 	m.notification.Content = t
 	m.notification.IsActive = true
-}
-
-// TextModel contains only string inside
-type TextModel struct{ Text string }
-
-func (m TextModel) Init() tea.Cmd {
-	return nil
-}
-
-func (m TextModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	return m, nil
-}
-
-func (m TextModel) View() string {
-	return m.Text
-}
-
-func NewTextModel() TextModel {
-	return TextModel{"Placeholder"}
 }
