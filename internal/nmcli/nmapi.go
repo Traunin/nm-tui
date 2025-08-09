@@ -78,6 +78,8 @@ func WifiGetConnected() ([]string, error) {
 	return result, nil
 }
 
+// WifiGetPassword gives password of saved wifi-network with given ssid
+// CMD: nmcli -s -g 802-11-wireless-security.psk connection show "<SSID>"
 func WifiGetPassword(ssid *string) (string, error) {
 	args := []string{"-s", "-g", "802-11-wireless-security.psk", "connection", "show", *ssid}
 	out, err := exec.Command(nm, args...).Output()
