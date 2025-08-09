@@ -76,6 +76,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 		return m, nil
+	case PopupContentMsg:
+		cmd = m.showPopup(msg)
+		return m, cmd
+	case NotificationMsg:
+		cmd = m.showNotification(string(msg))
+		return m, cmd
 	}
 	if m.notification.IsActive {
 		upd, cmd = m.notification.Update(msg)
@@ -98,15 +104,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.state = wifiView
 				}
 				return m, cmd
+			case "n":
+				return m, ShowNotification("aaaaa")
 			}
 			upd, cmd = m.wifiTable.Update(msg)
 			m.wifiTable = upd.(WifiTableModel)
-			return m, cmd
-		case PopupContentMsg:
-			cmd = m.showPopup(msg)
-			return m, cmd
-		case NotificationMsg:
-			cmd = m.showNotification(string(msg))
 			return m, cmd
 		}
 		upd, cmd = m.wifiTable.Update(msg)
