@@ -53,7 +53,7 @@ func WifiConnect(ssid *string, password *string) error {
 	args := []string{"device", "wifi", "connect", *ssid, "password", *password}
 	out, err := exec.Command(nm, args...).Output()
 	if err == nil {
-		logger.InfoLog.Printf("Connected to wifi %s (%s %s): %s\n", *ssid, nm, args, string(out))
+		logger.InfoLog.Printf("Connected to wifi %s (%s %s): %s", *ssid, nm, args, string(out))
 	} else {
 		logger.ErrorLog.Printf("Error connecting to wifi %s (%s %s): %s\n", *ssid, nm, args, err.Error())
 	}
@@ -66,7 +66,7 @@ func WifiConnectSaved(ssid *string) error {
 	args := []string{"connection", "up", *ssid}
 	out, err := exec.Command(nm, args...).Output()
 	if err == nil {
-		logger.InfoLog.Printf("Connected to saved wifi %s (%s %s): %s\n", *ssid, nm, args, string(out))
+		logger.InfoLog.Printf("Connected to saved wifi %s (%s %s): %s", *ssid, nm, args, string(out))
 	} else {
 		logger.ErrorLog.Printf("Error connecting to saved wifi %s (%s %s): %s\n", *ssid, nm, args, err.Error())
 	}
@@ -120,7 +120,7 @@ func VpnConnect(vpnName *string) error {
 	args := []string{"connection", "up", "id", *vpnName}
 	out, err := exec.Command(nm, args...).Output()
 	if err == nil {
-		logger.InfoLog.Printf("Connected to VPN %s (%s %s): %s\n", *vpnName, nm, args, string(out))
+		logger.InfoLog.Printf("Connected to VPN %s (%s %s): %s", *vpnName, nm, args, string(out))
 	} else {
 		logger.ErrorLog.Printf("Error connecting to VPN %s (%s %s): %s\n", *vpnName, nm, args, err.Error())
 	}
