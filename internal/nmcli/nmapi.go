@@ -52,7 +52,11 @@ func WifiConnect(ssid *string, password *string) error {
 	WifiDeleteConnection(ssid) // FIX: after nmcli 1.48.10 connection via password not able with saved networks
 	args := []string{"device", "wifi", "connect", *ssid, "password", *password}
 	out, err := exec.Command(nm, args...).Output()
-	logger.InfoLog.Println(nm, args, "\n", string(out), err)
+	if err == nil {
+		logger.InfoLog.Printf("Connected to wifi %s (%s %s): %s\n", *ssid, nm, args, string(out))
+	} else {
+		logger.ErrorLog.Printf("Error connecting to wifi %s (%s %s): %s\n", *ssid, nm, args, err.Error())
+	}
 	return err
 }
 
@@ -61,7 +65,11 @@ func WifiConnect(ssid *string, password *string) error {
 func WifiConnectSaved(ssid *string) error {
 	args := []string{"connection", "up", *ssid}
 	out, err := exec.Command(nm, args...).Output()
-	logger.InfoLog.Println(nm, args, "\n", string(out), err)
+	if err == nil {
+		logger.InfoLog.Printf("Connected to saved wifi %s (%s %s): %s\n", *ssid, nm, args, string(out))
+	} else {
+		logger.ErrorLog.Printf("Error connecting to saved wifi %s (%s %s): %s\n", *ssid, nm, args, err.Error())
+	}
 	return err
 }
 
@@ -71,10 +79,11 @@ func WifiGetConnected() ([]string, error) {
 	args := []string{"-t", "-f", "NAME", "connection", "show"}
 	out, err := exec.Command(nm, args...).Output()
 	if err != nil {
+		logger.ErrorLog.Printf("Error retreiving list of connected wifi-networks (%s %s): %s\n", nm, args, err.Error())
 		return nil, err
 	}
 	result := strings.Split(string(out), "\n")
-	logger.InfoLog.Println(nm, args, "\n", strings.Join(result, ", "), err)
+	logger.InfoLog.Printf("Got list of connetcted wifi-networks (%s %s)\n", nm, args)
 	return result, nil
 }
 
@@ -84,9 +93,10 @@ func WifiGetPassword(ssid *string) (string, error) {
 	args := []string{"-s", "-g", "802-11-wireless-security.psk", "connection", "show", *ssid}
 	out, err := exec.Command(nm, args...).Output()
 	if err != nil {
+		logger.ErrorLog.Printf("Error retrieving password to wifi %s (%s %s): %s\n", *ssid, nm, args, err.Error())
 		return "", err
 	}
-	logger.InfoLog.Println(nm, args, "\n", string(out), err)
+	logger.InfoLog.Printf("Got password to wifi %s (%s %s)\n", *ssid, nm, args)
 	return string(out), nil
 }
 
@@ -96,6 +106,11 @@ func WifiDeleteConnection(ssid *string) error {
 	args := []string{"connection", "delete", *ssid}
 	out, err := exec.Command(nm, args...).Output()
 	logger.InfoLog.Println(nm, args, "\n", string(out), err)
+	if err == nil {
+		logger.InfoLog.Printf("Connection to wifi %s was deleted (%s %s): %s\n", *ssid, nm, args, string(out))
+	} else {
+		logger.ErrorLog.Printf("Error deleting connection to wifi %s (%s %s): %s\n", *ssid, nm, args, err.Error())
+	}
 	return err
 }
 
@@ -104,6 +119,10 @@ func WifiDeleteConnection(ssid *string) error {
 func VpnConnect(vpnName *string) error {
 	args := []string{"connection", "up", "id", *vpnName}
 	out, err := exec.Command(nm, args...).Output()
-	logger.InfoLog.Println(nm, args, "\n", string(out), err)
+	if err == nil {
+		logger.InfoLog.Printf("Connected to VPN %s (%s %s): %s\n", *vpnName, nm, args, string(out))
+	} else {
+		logger.ErrorLog.Printf("Error connecting to VPN %s (%s %s): %s\n", *vpnName, nm, args, err.Error())
+	}
 	return err
 }
