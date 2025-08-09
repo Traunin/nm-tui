@@ -17,8 +17,6 @@ type WifiConnectorModel struct {
 	err      error
 }
 
-type errMsg error
-
 func NewWifiConnector(ssid string) *WifiConnectorModel {
 	p := textinput.New()
 	p.Focus()
@@ -58,9 +56,6 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.password.EchoMode = textinput.EchoPassword
 			}
 		}
-	case errMsg:
-		m.err = msg
-		return m, nil
 	}
 
 	m.password, cmd = m.password.Update(msg)
