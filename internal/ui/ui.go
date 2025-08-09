@@ -100,7 +100,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				return m, cmd
 			case "n":
-				m.notify("xddddddd\nddddd")
+				m.showNotification("xddddddd\nddddd")
 				return m, cmd
 			}
 			upd, cmd = m.wifiTable.Update(msg)
@@ -110,7 +110,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmd = m.showPopup(msg)
 			return m, cmd
 		case NotificationMsg:
-			cmd = m.notify(string(msg))
+			cmd = m.showNotification(string(msg))
 			return m, cmd
 		}
 		upd, cmd = m.wifiTable.Update(msg)
@@ -139,7 +139,7 @@ func (m *Model) showPopup(content tea.Model) tea.Cmd {
 	return cmd
 }
 
-func (m *Model) notify(text string) tea.Cmd {
+func (m *Model) showNotification(text string) tea.Cmd {
 	m.notification.IsActive = true
 	n, cmd := m.notification.Update(overlay.LoadedContentMsg(label.New(text)))
 	m.notification = n.(overlay.Model)
