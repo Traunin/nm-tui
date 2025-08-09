@@ -4,7 +4,6 @@ package wifi
 import (
 	"fmt"
 
-	"github.com/alphameo/nm-tui/internal/logger"
 	"github.com/alphameo/nm-tui/internal/nmcli"
 	"github.com/alphameo/nm-tui/internal/ui/overlay"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
@@ -28,6 +27,10 @@ func NewConnector(ssid string) *ConnectorModel {
 	p.EchoMode = textinput.EchoPassword
 	p.EchoCharacter = '•'
 	p.Placeholder = "Password"
+	pw, err := nmcli.CheckPassword(&ssid)
+	if err == nil {
+		p.SetValue(pw)
+	}
 	return &ConnectorModel{SSID: ssid, password: p}
 }
 
@@ -44,7 +47,6 @@ func (m ConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyEnter:
 			pw := m.password.Value()
 			nmcli.ConnectWifi(&m.SSID, &pw)
-			logger.InfoLog.Println(nmcli.CheckPassword(&m.SSID))
 			return m, overlay.Close()
 		}
 	case errMsg:
@@ -57,5 +59,6 @@ func (m ConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ConnectorModel) View() string {
-	return fmt.Sprintf("SSID: %s\n%s", m.SSID, styles.BorderStyle.Render(m.password.View()))
+	pwInput := styles.BorderStyle.Render(m.password.View())
+	return fmt.Sprintf("SSID: %s\n%v", m.SSID, pwInput)
 }
