@@ -32,7 +32,7 @@ type Model struct {
 }
 
 func New() Model {
-	w := wifi.NewTableModel(30, 20)
+	w := wifi.NewTableModel(51, 20)
 	t := timer.New(time.Hour)
 	p := overlay.New(nil)
 	p.Width = 100
