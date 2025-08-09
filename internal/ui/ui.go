@@ -34,7 +34,7 @@ type Model struct {
 func New() Model {
 	w := wifi.NewTableModel(30, 20)
 	t := timer.New(time.Hour)
-	p := overlay.New(wifi.NewConnector("aaa"))
+	p := overlay.New(nil)
 	p.Width = 100
 	p.Height = 10
 	p.XAnchor = overlay.Center
@@ -98,9 +98,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				} else {
 					m.state = wifiView
 				}
-				return m, cmd
-			case "o":
-				cmd = m.showPopup(nil)
 				return m, cmd
 			case "n":
 				m.notify("xddddddd\nddddd")
