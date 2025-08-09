@@ -45,7 +45,7 @@ func NewTableModel(width int, height int) *TableModel {
 }
 
 func (m TableModel) Init() tea.Cmd {
-	return tea.Batch(m.updatingSpinner.Tick, m.updateWifiList())
+	return tea.Batch(m.updatingSpinner.Tick, UpdateWifiList)
 }
 
 func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -59,8 +59,8 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 			m.updating = true
-			cmds := []tea.Cmd{
-				m.updateWifiList(),
+			cmds = []tea.Cmd{
+				UpdateWifiList,
 				m.updatingSpinner.Tick,
 			}
 			return m, tea.Batch(cmds...)
@@ -97,11 +97,9 @@ func (m TableModel) View() string {
 	return styles.BorderStyle.Render(out)
 }
 
-func (m *TableModel) updateWifiList() tea.Cmd {
-	return func() tea.Msg {
-		rows := getWifiRows()
-		return updatedRowsMsg(rows)
-	}
+func UpdateWifiList() tea.Msg {
+	rows := getWifiRows()
+	return updatedRowsMsg(rows)
 }
 
 func getWifiRows() []table.Row {
