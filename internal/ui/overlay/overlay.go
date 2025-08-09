@@ -39,7 +39,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+q", "esc", "ctrl+c":
-			return m, Close()
+			return m, Close
 		}
 	case CloseMsg:
 		m.IsActive = false
@@ -92,8 +92,6 @@ func LoadContent(model tea.Model) tea.Cmd {
 
 type CloseMsg bool
 
-func Close() tea.Cmd {
-	return func() tea.Msg {
-		return CloseMsg(true)
-	}
+func Close() tea.Msg {
+	return CloseMsg(true)
 }
