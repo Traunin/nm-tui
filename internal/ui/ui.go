@@ -99,9 +99,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.state = wifiView
 				}
 				return m, cmd
-			case "n":
-				m.showNotification("xddddddd\nddddd")
-				return m, cmd
 			}
 			upd, cmd = m.wifiTable.Update(msg)
 			m.wifiTable = upd.(wifi.TableModel)
