@@ -5,6 +5,10 @@ import tea "github.com/charmbracelet/bubbletea"
 
 type Model string
 
+func New(label string) Model {
+	return Model(label)
+}
+
 func (m Model) Init() tea.Cmd {
 	return nil
 }
@@ -15,8 +19,4 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	return string(m)
-}
-
-func NewTextModel() Model {
-	return Model("Placeholder")
 }

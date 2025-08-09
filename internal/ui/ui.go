@@ -40,7 +40,7 @@ func New() Model {
 	p.Height = 10
 	p.XAnchor = overlay.Center
 	p.YAnchor = overlay.Center
-	n := overlay.New(label.NewTextModel())
+	n := overlay.New(label.New("Placeholder"))
 	n.XAnchor = overlay.Center
 	n.YAnchor = overlay.Center
 	n.Width = 100
