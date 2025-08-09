@@ -14,4 +14,5 @@ func main() {
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
 	}
+	logger.InfoLog.Println("The program is running")
 }
