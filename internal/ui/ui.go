@@ -77,14 +77,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 		return m, nil
 	case PopupContentMsg:
-		cmd = m.showPopup(msg)
-		return m, cmd
+		return m, m.showPopup(msg)
 	case PopupActivityMsg:
 		m.popup.IsActive = bool(msg)
 		return m, nil
 	case NotificationTextMsg:
-		m.showNotification(string(msg))
-		return m, nil
+		return m, m.showNotification(string(msg))
 	case NotificationActivityMsg:
 		m.notification.IsActive = bool(msg)
 		return m, nil
@@ -140,9 +138,10 @@ func (m *Model) showPopup(content tea.Model) tea.Cmd {
 	return m.popup.Content.Init()
 }
 
-func (m *Model) showNotification(text string) {
+func (m *Model) showNotification(text string) tea.Cmd {
 	m.notification.IsActive = true
 	m.notification.Content = label.New(text)
+	return nil
 }
 
 // Public controls
