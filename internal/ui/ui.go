@@ -80,8 +80,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd = m.showPopup(msg)
 		return m, cmd
 	case NotificationMsg:
-		cmd = m.showNotification(string(msg))
+		m.showNotification(string(msg))
 		return m, cmd
+	case PopupActivityMsg:
+		m.popup.IsActive = bool(msg)
+	case NotificationActivityMsg:
+		m.notification.IsActive = bool(msg)
+		return m, nil
 	}
 	if m.notification.IsActive {
 		upd, cmd = m.notification.Update(msg)
@@ -132,19 +137,19 @@ func (m Model) View() string {
 
 func (m *Model) showPopup(content tea.Model) tea.Cmd {
 	m.popup.IsActive = true
-	p, cmd := m.popup.Update(overlay.LoadedContentMsg(content))
-	m.popup = p.(overlay.Model)
-	return cmd
+	m.popup.Content = content
+	return m.popup.Content.Init()
 }
 
-func (m *Model) showNotification(text string) tea.Cmd {
+func (m *Model) showNotification(text string) {
 	m.notification.IsActive = true
-	n, cmd := m.notification.Update(overlay.LoadedContentMsg(label.New(text)))
-	m.notification = n.(overlay.Model)
-	return cmd
+	m.notification.Content = label.New(text)
 }
 
-type PopupContentMsg tea.Model
+type (
+	PopupContentMsg  tea.Model
+	PopupActivityMsg bool
+)
 
 func ShowPopup(content tea.Model) tea.Cmd {
 	return func() tea.Msg {
@@ -152,10 +157,21 @@ func ShowPopup(content tea.Model) tea.Cmd {
 	}
 }
 
-type NotificationMsg string
+func ClosePopup() tea.Msg {
+	return PopupActivityMsg(false)
+}
+
+type (
+	NotificationMsg         string
+	NotificationActivityMsg bool
+)
 
 func ShowNotification(notification string) tea.Cmd {
 	return func() tea.Msg {
 		return NotificationMsg(notification)
 	}
+}
+
+func CloseNotification() tea.Msg {
+	return NotificationActivityMsg(false)
 }

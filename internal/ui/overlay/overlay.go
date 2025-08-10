@@ -39,17 +39,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+q", "esc", "ctrl+c":
-			return m, Close
+			m.IsActive = false
+			return m, nil
 		}
-	case CloseMsg:
-		m.IsActive = false
-		return m, nil
-	case LoadedContentMsg:
-		if msg != nil {
-			m.Content = msg
-			return m, m.Content.Init()
-		}
-		return m, nil
 	}
 	m.Content, cmd = m.Content.Update(msg)
 	return m, cmd
@@ -80,18 +72,4 @@ func New(content tea.Model) *Model {
 
 func (m *Model) Place(bg string) string {
 	return Compose(m.View(), bg, m.XAnchor, m.YAnchor, m.XOffset, m.YOffset)
-}
-
-type LoadedContentMsg tea.Model
-
-func LoadContent(model tea.Model) tea.Cmd {
-	return func() tea.Msg {
-		return LoadedContentMsg(model)
-	}
-}
-
-type CloseMsg bool
-
-func Close() tea.Msg {
-	return CloseMsg(true)
 }
