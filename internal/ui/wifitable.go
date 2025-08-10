@@ -93,13 +93,8 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		return m, m.indicatorSpinner.Tick
-	case WifiConnectionMsg:
-		err := nmcli.WifiConnect(&msg.SSID, &msg.password)
-		if err == nil {
-			return m, UpdateWifiRows
-		} else {
-			return m, ShowNotification(fmt.Sprintf("Connection interrupted: %s", err.Error()))
-		}
+	case AfterWifiConnectionMsg:
+		return m, tea.Cmd(msg)
 	}
 
 	var cmd tea.Cmd
@@ -154,13 +149,18 @@ func SetWifiIndicatorState(state wifiState) tea.Cmd {
 	}
 }
 
-type WifiConnectionMsg struct {
-	SSID     string
-	password string
-}
+type AfterWifiConnectionMsg tea.Cmd
 
 func WifiConnect(ssid, password string) tea.Cmd {
-	return func() tea.Msg {
-		return WifiConnectionMsg{SSID: ssid, password: password}
-	}
+	return tea.Sequence(
+		SetWifiIndicatorState(Connecting),
+		func() tea.Msg {
+			err := nmcli.WifiConnect(&ssid, &password)
+			if err == nil {
+				return AfterWifiConnectionMsg(UpdateWifiRows)
+			} else {
+				return AfterWifiConnectionMsg(ShowNotification(fmt.Sprintf("Connection interrupted: %s", err.Error())))
+			}
+		},
+		SetWifiIndicatorState(None))
 }

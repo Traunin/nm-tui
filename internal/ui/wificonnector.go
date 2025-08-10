@@ -42,7 +42,7 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyEnter:
 			pw := m.password.Value()
-			return m, tea.Sequence(ClosePopup, SetWifiIndicatorState(Connecting), WifiConnect(m.SSID, pw))
+			return m, tea.Sequence(ClosePopup, WifiConnect(m.SSID, pw))
 		case tea.KeyCtrlR:
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
