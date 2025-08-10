@@ -75,8 +75,7 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.indicatorState != None {
 				return m, nil
 			}
-			m.indicatorState = Scanning
-			return m, tea.Batch(UpdateWifiRows, m.indicatorSpinner.Tick)
+			return m, tea.Batch(UpdateWifiRows, SetTableSpinnerState(Scanning))
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
@@ -88,6 +87,12 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.indicatorState = None
 		m.dataTable.SetRows(msg)
 		return m, nil
+	case tableSpinnerStateMsg:
+		m.indicatorState = tableSpinnerState(msg)
+		if m.indicatorState == None {
+			return m, nil
+		}
+		return m, m.indicatorSpinner.Tick
 	case wifiConnectionMsg:
 		err := nmcli.WifiConnect(&msg.SSID, &msg.password)
 		if err == nil {
