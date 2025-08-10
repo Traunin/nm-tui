@@ -122,7 +122,7 @@ func UpdateWifiRows() tea.Msg {
 func getWifiRows() []table.Row {
 	list, err := nmcli.WifiScan()
 	if err != nil {
-		fmt.Println(fmt.Errorf("error: %s", err.Error()))
+		logger.ErrorLog.Println(fmt.Errorf("error: %s", err.Error()))
 	}
 	rows := []table.Row{}
 	for _, wifiNet := range list {
