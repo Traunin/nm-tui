@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 
+	"github.com/alphameo/nm-tui/internal/logger"
 	"github.com/alphameo/nm-tui/internal/nmcli"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/spinner"
