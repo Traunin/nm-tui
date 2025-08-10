@@ -187,17 +187,3 @@ func SetNotificationActivity(isActive bool) tea.Cmd {
 		return NotificationActivityMsg(isActive)
 	}
 }
-
-// func ShowNotification(notification string) tea.Cmd {
-// 	return func() tea.Msg {
-// 		return NotificationTextMsg(notification)
-// 	}
-// }
-//
-// func OpenNotification() tea.Msg {
-// 	return NotificationActivityMsg(true)
-// }
-//
-// func CloseNotification() tea.Msg {
-// 	return NotificationActivityMsg(false)
-// }

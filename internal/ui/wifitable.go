@@ -79,7 +79,8 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
-				return m, tea.Sequence(SetPopupActivity(true), SetPopupContent(NewWifiConnector(row[1])))
+				connector := NewWifiConnector(row[1])
+				return m, tea.Sequence(SetPopupActivity(true), SetPopupContent(connector))
 			}
 			return m, nil
 		}
