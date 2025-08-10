@@ -60,14 +60,3 @@ func (m WifiConnectorModel) View() string {
 	pwInput := styles.BorderStyle.Render(m.password.View())
 	return fmt.Sprintf("SSID: %s\n%v", m.SSID, pwInput)
 }
-
-type wifiConnectionMsg struct {
-	SSID     string
-	password string
-}
-
-func WifiConnect(ssid, password string) tea.Cmd {
-	return func() tea.Msg {
-		return wifiConnectionMsg{SSID: ssid, password: password}
-	}
-}

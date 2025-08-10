@@ -134,3 +134,14 @@ func getWifiRows() []table.Row {
 	}
 	return rows
 }
+
+type wifiConnectionMsg struct {
+	SSID     string
+	password string
+}
+
+func WifiConnect(ssid, password string) tea.Cmd {
+	return func() tea.Msg {
+		return wifiConnectionMsg{SSID: ssid, password: password}
+	}
+}
