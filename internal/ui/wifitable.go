@@ -64,7 +64,7 @@ func NewWifiTableModel(width int, height int) *WifiTableModel {
 }
 
 func (m WifiTableModel) Init() tea.Cmd {
-	return tea.Batch(m.indicatorSpinner.Tick, UpdateWifiRows)
+	return tea.Batch(UpdateWifiRows())
 }
 
 func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -75,7 +75,7 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.indicatorState != None {
 				return m, nil
 			}
-			return m, tea.Batch(UpdateWifiRows, SetWifiIndicatorState(Scanning))
+			return m, UpdateWifiRows()
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
@@ -84,7 +84,6 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	case updatedRowsMsg:
-		m.indicatorState = None
 		m.dataTable.SetRows(msg)
 		return m, nil
 	case WifiIndicatorStateMsg:
@@ -125,20 +124,25 @@ func (m WifiTableModel) View() string {
 
 type updatedRowsMsg []table.Row
 
-func UpdateWifiRows() tea.Msg {
-	list, err := nmcli.WifiScan()
-	if err != nil {
-		logger.ErrorLog.Println(fmt.Errorf("error: %s", err.Error()))
-	}
-	rows := []table.Row{}
-	for _, wifiNet := range list {
-		var connectionFlag string
-		if wifiNet.Active {
-			connectionFlag = ""
-		}
-		rows = append(rows, table.Row{connectionFlag, wifiNet.SSID, wifiNet.Security, fmt.Sprint(wifiNet.Signal)})
-	}
-	return updatedRowsMsg(rows)
+func UpdateWifiRows() tea.Cmd {
+	return tea.Sequence(
+		SetWifiIndicatorState(Scanning),
+		func() tea.Msg {
+			list, err := nmcli.WifiScan()
+			if err != nil {
+				logger.ErrorLog.Println(fmt.Errorf("error: %s", err.Error()))
+			}
+			rows := []table.Row{}
+			for _, wifiNet := range list {
+				var connectionFlag string
+				if wifiNet.Active {
+					connectionFlag = ""
+				}
+				rows = append(rows, table.Row{connectionFlag, wifiNet.SSID, wifiNet.Security, fmt.Sprint(wifiNet.Signal)})
+			}
+			return updatedRowsMsg(rows)
+		},
+		SetWifiIndicatorState(None))
 }
 
 type WifiIndicatorStateMsg wifiState
@@ -157,7 +161,7 @@ func WifiConnect(ssid, password string) tea.Cmd {
 		func() tea.Msg {
 			err := nmcli.WifiConnect(&ssid, &password)
 			if err == nil {
-				return AfterWifiConnectionMsg(UpdateWifiRows)
+				return AfterWifiConnectionMsg(UpdateWifiRows())
 			} else {
 				return AfterWifiConnectionMsg(ShowNotification(fmt.Sprintf("Connection interrupted: %s", err.Error())))
 			}
