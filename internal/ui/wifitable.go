@@ -88,6 +88,13 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.indicatorState = None
 		m.dataTable.SetRows(msg)
 		return m, nil
+	case wifiConnectionMsg:
+		err := nmcli.WifiConnect(&msg.SSID, &msg.password)
+		if err == nil {
+			return m, UpdateWifiRows
+		} else {
+			return m, ShowNotification(fmt.Sprintf("Connection interrupted: %s", err.Error()))
+		}
 	}
 
 	var cmd tea.Cmd
