@@ -135,6 +135,14 @@ func getWifiRows() []table.Row {
 	return rows
 }
 
+type tableSpinnerStateMsg tableSpinnerState
+
+func SetTableSpinnerState(state tableSpinnerState) tea.Cmd {
+	return func() tea.Msg {
+		return tableSpinnerState(state)
+	}
+}
+
 type wifiConnectionMsg struct {
 	SSID     string
 	password string
