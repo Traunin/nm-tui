@@ -35,8 +35,6 @@ func (m WifiConnectorModel) Init() tea.Cmd {
 }
 
 func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
@@ -52,11 +50,12 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
+	var cmd tea.Cmd
 	m.password, cmd = m.password.Update(msg)
 	return m, cmd
 }
 
 func (m WifiConnectorModel) View() string {
-	pwInput := styles.BorderStyle.Render(m.password.View())
-	return fmt.Sprintf("SSID: %s\n%v", m.SSID, pwInput)
+	inputField := styles.BorderStyle.Render(m.password.View())
+	return fmt.Sprintf("SSID: %s\n%v", m.SSID, inputField)
 }

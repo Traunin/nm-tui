@@ -98,14 +98,12 @@ func (m Model) View() string {
 }
 
 func (m *Model) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
-	var cmd tea.Cmd
-	var upd tea.Model
 	if m.notification.IsActive {
-		upd, cmd = m.notification.Update(keyMsg)
+		upd, cmd := m.notification.Update(keyMsg)
 		m.notification = upd.(overlay.Model)
 		return cmd
 	} else if m.popup.IsActive {
-		upd, cmd = m.popup.Update(keyMsg)
+		upd, cmd := m.popup.Update(keyMsg)
 		m.popup = upd.(overlay.Model)
 		return cmd
 	}
@@ -118,20 +116,20 @@ func (m *Model) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 		} else {
 			m.state = wifiView
 		}
-		return cmd
+		return nil
 	}
-	upd, cmd = m.wifiTable.Update(keyMsg)
+	upd, cmd := m.wifiTable.Update(keyMsg)
 	m.wifiTable = upd.(WifiTableModel)
 	return cmd
 }
 
 func (m *Model) processCommonMsg(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
-	var upd tea.Model
 	m.timer, cmd = m.timer.Update(msg)
 	if cmd != nil {
 		return cmd
 	}
+	var upd tea.Model
 	upd, cmd = m.wifiTable.Update(msg)
 	m.wifiTable = upd.(WifiTableModel)
 	if cmd != nil {
