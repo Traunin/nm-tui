@@ -90,14 +90,17 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	var cmd tea.Cmd
-	var cmds []tea.Cmd
 	if m.indicatorState != None {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
-		cmds = append(cmds, cmd)
+		if cmd != nil {
+			return m, cmd
+		}
 	}
 	m.dataTable, cmd = m.dataTable.Update(msg)
-	cmds = append(cmds, cmd)
-	return m, tea.Batch(cmds...)
+	if cmd != nil {
+		return m, cmd
+	}
+	return m, nil
 }
 
 func (m WifiTableModel) View() string {
