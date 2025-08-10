@@ -79,11 +79,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case PopupContentMsg:
 		cmd = m.showPopup(msg)
 		return m, cmd
-	case NotificationMsg:
-		m.showNotification(string(msg))
-		return m, cmd
 	case PopupActivityMsg:
 		m.popup.IsActive = bool(msg)
+		return m, nil
+	case NotificationTextMsg:
+		m.showNotification(string(msg))
+		return m, nil
 	case NotificationActivityMsg:
 		m.notification.IsActive = bool(msg)
 		return m, nil
@@ -109,8 +110,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.state = wifiView
 				}
 				return m, cmd
-			case "n":
-				return m, ShowNotification("aaaaa")
 			}
 			upd, cmd = m.wifiTable.Update(msg)
 			m.wifiTable = upd.(WifiTableModel)
@@ -146,6 +145,8 @@ func (m *Model) showNotification(text string) {
 	m.notification.Content = label.New(text)
 }
 
+// Public controls
+
 type (
 	PopupContentMsg  tea.Model
 	PopupActivityMsg bool
@@ -162,13 +163,13 @@ func ClosePopup() tea.Msg {
 }
 
 type (
-	NotificationMsg         string
+	NotificationTextMsg     string
 	NotificationActivityMsg bool
 )
 
 func ShowNotification(notification string) tea.Cmd {
 	return func() tea.Msg {
-		return NotificationMsg(notification)
+		return NotificationTextMsg(notification)
 	}
 }
 
