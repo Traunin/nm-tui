@@ -52,27 +52,27 @@ func WifiScan() ([]WifiNet, error) {
 
 // WifiConnect connects to wifi-network with given ssid using given password.
 // CMD: nmcli device wifi connect "<SSID>" password "<PASSWORD>"
-func WifiConnect(ssid *string, password *string) error {
+func WifiConnect(ssid, password string) error {
 	WifiDeleteConnection(ssid) // FIX: after nmcli 1.48.10 connection via password not able with saved networks
-	args := []string{"device", "wifi", "connect", *ssid, "password", *password}
+	args := []string{"device", "wifi", "connect", ssid, "password", password}
 	out, err := exec.Command(nm, args...).Output()
 	if err == nil {
-		logger.InfoLog.Printf("Connected to wifi %s (%s %s): %s", *ssid, nm, args, string(out))
+		logger.InfoLog.Printf("Connected to wifi %s (%s %s): %s", ssid, nm, args, string(out))
 	} else {
-		logger.ErrorLog.Printf("Error connecting to wifi %s (%s %s): %s\n", *ssid, nm, args, err.Error())
+		logger.ErrorLog.Printf("Error connecting to wifi %s (%s %s): %s\n", ssid, nm, args, err.Error())
 	}
 	return err
 }
 
 // WifiConnectSaved connects to wifi-network with given ssid if its password is saved.
 // CMD: nmcli connection up "<SSID>"
-func WifiConnectSaved(ssid *string) error {
-	args := []string{"connection", "up", *ssid}
+func WifiConnectSaved(ssid string) error {
+	args := []string{"connection", "up", ssid}
 	out, err := exec.Command(nm, args...).Output()
 	if err == nil {
-		logger.InfoLog.Printf("Connected to saved wifi %s (%s %s): %s", *ssid, nm, args, string(out))
+		logger.InfoLog.Printf("Connected to saved wifi %s (%s %s): %s", ssid, nm, args, string(out))
 	} else {
-		logger.ErrorLog.Printf("Error connecting to saved wifi %s (%s %s): %s\n", *ssid, nm, args, err.Error())
+		logger.ErrorLog.Printf("Error connecting to saved wifi %s (%s %s): %s\n", ssid, nm, args, err.Error())
 	}
 	return err
 }
@@ -93,40 +93,40 @@ func WifiGetConnected() ([]string, error) {
 
 // WifiGetPassword gives password of saved wifi-network with given ssid
 // CMD: nmcli -s -g 802-11-wireless-security.psk connection show "<SSID>"
-func WifiGetPassword(ssid *string) (string, error) {
-	args := []string{"-s", "-g", "802-11-wireless-security.psk", "connection", "show", *ssid}
+func WifiGetPassword(ssid string) (string, error) {
+	args := []string{"-s", "-g", "802-11-wireless-security.psk", "connection", "show", ssid}
 	out, err := exec.Command(nm, args...).Output()
 	if err != nil {
-		logger.ErrorLog.Printf("Error retrieving password to wifi %s (%s %s): %s\n", *ssid, nm, args, err.Error())
+		logger.ErrorLog.Printf("Error retrieving password to wifi %s (%s %s): %s\n", ssid, nm, args, err.Error())
 		return "", err
 	}
 	pw := strings.Trim(string(out), " \n")
-	logger.InfoLog.Printf("Got password to wifi %s (%s %s)\n", *ssid, nm, args)
+	logger.InfoLog.Printf("Got password to wifi %s (%s %s)\n", ssid, nm, args)
 	return pw, nil
 }
 
 // WifiDeleteConnection removes wifi-network with given ssid from saved connections.
 // CMD: nmcli connection delete "<SSID>"
-func WifiDeleteConnection(ssid *string) error {
-	args := []string{"connection", "delete", *ssid}
+func WifiDeleteConnection(ssid string) error {
+	args := []string{"connection", "delete", ssid}
 	out, err := exec.Command(nm, args...).Output()
 	if err == nil {
-		logger.InfoLog.Printf("Connection to wifi %s was deleted (%s %s): %s", *ssid, nm, args, string(out))
+		logger.InfoLog.Printf("Connection to wifi %s was deleted (%s %s): %s", ssid, nm, args, string(out))
 	} else {
-		logger.ErrorLog.Printf("Error deleting connection to wifi %s (%s %s): %s\n", *ssid, nm, args, err.Error())
+		logger.ErrorLog.Printf("Error deleting connection to wifi %s (%s %s): %s\n", ssid, nm, args, err.Error())
 	}
 	return err
 }
 
 // VpnConnect connects to vpn with given vpnName
 // CMD: nmcli connection up id "<VPN_NAME>"
-func VpnConnect(vpnName *string) error {
-	args := []string{"connection", "up", "id", *vpnName}
+func VpnConnect(vpnName string) error {
+	args := []string{"connection", "up", "id", vpnName}
 	out, err := exec.Command(nm, args...).Output()
 	if err == nil {
-		logger.InfoLog.Printf("Connected to VPN %s (%s %s): %s", *vpnName, nm, args, string(out))
+		logger.InfoLog.Printf("Connected to VPN %s (%s %s): %s", vpnName, nm, args, string(out))
 	} else {
-		logger.ErrorLog.Printf("Error connecting to VPN %s (%s %s): %s\n", *vpnName, nm, args, err.Error())
+		logger.ErrorLog.Printf("Error connecting to VPN %s (%s %s): %s\n", vpnName, nm, args, err.Error())
 	}
 	return err
 }

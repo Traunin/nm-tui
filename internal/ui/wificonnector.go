@@ -23,7 +23,7 @@ func NewWifiConnector(ssid string) *WifiConnectorModel {
 	p.EchoMode = textinput.EchoPassword
 	p.EchoCharacter = '•'
 	p.Placeholder = "Password"
-	pw, err := nmcli.WifiGetPassword(&ssid)
+	pw, err := nmcli.WifiGetPassword(ssid)
 	if err == nil {
 		p.SetValue(pw)
 	}

@@ -159,7 +159,7 @@ func WifiConnect(ssid, password string) tea.Cmd {
 	return tea.Sequence(
 		SetWifiIndicatorState(Connecting),
 		func() tea.Msg {
-			err := nmcli.WifiConnect(&ssid, &password)
+			err := nmcli.WifiConnect(ssid, password)
 			if err == nil {
 				return AfterWifiConnectionMsg(UpdateWifiRows())
 			} else {
