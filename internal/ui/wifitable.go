@@ -150,7 +150,7 @@ type tableSpinnerStateMsg tableSpinnerState
 
 func SetTableSpinnerState(state tableSpinnerState) tea.Cmd {
 	return func() tea.Msg {
-		return tableSpinnerState(state)
+		return tableSpinnerStateMsg(state)
 	}
 }
 
