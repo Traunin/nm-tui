@@ -41,12 +41,8 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEnter:
-			cmd = ShowNotification("connecting")
-			go func() {
-				pw := m.password.Value()
-				nmcli.WifiConnect(&m.SSID, &pw)
-			}()
-			return m, tea.Batch(cmd, UpdateWifiRows, ClosePopup)
+			pw := m.password.Value()
+			return m, tea.Sequence(ClosePopup, SetTableSpinnerState(Connecting), WifiConnect(m.SSID, pw))
 		case tea.KeyCtrlR:
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
@@ -63,4 +59,15 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m WifiConnectorModel) View() string {
 	pwInput := styles.BorderStyle.Render(m.password.View())
 	return fmt.Sprintf("SSID: %s\n%v", m.SSID, pwInput)
+}
+
+type wifiConnectionMsg struct {
+	SSID     string
+	password string
+}
+
+func WifiConnect(ssid, password string) tea.Cmd {
+	return func() tea.Msg {
+		return wifiConnectionMsg{SSID: ssid, password: password}
+	}
 }
