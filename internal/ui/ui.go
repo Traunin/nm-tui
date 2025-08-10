@@ -67,12 +67,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 		return m, nil
 	case PopupContentMsg:
-		return m, m.showPopup(msg)
+		m.popup.Content = msg
+		return m, m.popup.Content.Init()
 	case PopupActivityMsg:
 		m.popup.IsActive = bool(msg)
 		return m, nil
 	case NotificationTextMsg:
-		return m, m.showNotification(string(msg))
+		m.notification.Content = label.New(string(msg))
+		return m, nil
 	case NotificationActivityMsg:
 		m.notification.IsActive = bool(msg)
 		return m, nil
@@ -152,18 +154,6 @@ func (m *Model) processCommonMsg(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (m *Model) showPopup(content tea.Model) tea.Cmd {
-	m.popup.IsActive = true
-	m.popup.Content = content
-	return m.popup.Content.Init()
-}
-
-func (m *Model) showNotification(text string) tea.Cmd {
-	m.notification.IsActive = true
-	m.notification.Content = label.New(text)
-	return nil
-}
-
 // Public controls
 
 type (
@@ -171,14 +161,16 @@ type (
 	PopupActivityMsg bool
 )
 
-func ShowPopup(content tea.Model) tea.Cmd {
+func SetPopupContent(content tea.Model) tea.Cmd {
 	return func() tea.Msg {
 		return PopupContentMsg(content)
 	}
 }
 
-func ClosePopup() tea.Msg {
-	return PopupActivityMsg(false)
+func SetPopupActivity(isActive bool) tea.Cmd {
+	return func() tea.Msg {
+		return PopupActivityMsg(isActive)
+	}
 }
 
 type (
@@ -186,12 +178,28 @@ type (
 	NotificationActivityMsg bool
 )
 
-func ShowNotification(notification string) tea.Cmd {
+func SetNotificationText(text string) tea.Cmd {
 	return func() tea.Msg {
-		return NotificationTextMsg(notification)
+		return NotificationTextMsg(text)
 	}
 }
 
-func CloseNotification() tea.Msg {
-	return NotificationActivityMsg(false)
+func SetNotificationActivity(isActive bool) tea.Cmd {
+	return func() tea.Msg {
+		return NotificationActivityMsg(isActive)
+	}
 }
+
+// func ShowNotification(notification string) tea.Cmd {
+// 	return func() tea.Msg {
+// 		return NotificationTextMsg(notification)
+// 	}
+// }
+//
+// func OpenNotification() tea.Msg {
+// 	return NotificationActivityMsg(true)
+// }
+//
+// func CloseNotification() tea.Msg {
+// 	return NotificationActivityMsg(false)
+// }

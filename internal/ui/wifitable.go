@@ -79,7 +79,7 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
-				return m, ShowPopup(NewWifiConnector(row[1]))
+				return m, tea.Sequence(SetPopupActivity(true), SetPopupContent(NewWifiConnector(row[1])))
 			}
 			return m, nil
 		}
@@ -163,7 +163,8 @@ func WifiConnect(ssid, password string) tea.Cmd {
 			if err == nil {
 				return AfterWifiConnectionMsg(UpdateWifiRows())
 			} else {
-				return AfterWifiConnectionMsg(ShowNotification(fmt.Sprintf("Connection interrupted: %s", err.Error())))
+				error := fmt.Sprintf("Connection interrupted: %s", err.Error())
+				return AfterWifiConnectionMsg(tea.Sequence(SetNotificationActivity(true), SetNotificationText(error)))
 			}
 		},
 		SetWifiIndicatorState(None))
