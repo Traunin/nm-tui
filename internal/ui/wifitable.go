@@ -12,15 +12,15 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type tableSpinnerState int
+type wifiState int
 
 const (
-	Scanning tableSpinnerState = iota
+	Scanning wifiState = iota
 	Connecting
 	None
 )
 
-func (s *tableSpinnerState) String() string {
+func (s *wifiState) String() string {
 	switch *s {
 	case Scanning:
 		return "Scanning"
@@ -36,7 +36,7 @@ func (s *tableSpinnerState) String() string {
 type WifiTableModel struct {
 	dataTable        table.Model
 	indicatorSpinner spinner.Model
-	indicatorState   tableSpinnerState
+	indicatorState   wifiState
 }
 
 func NewWifiTableModel(width int, height int) *WifiTableModel {
@@ -75,7 +75,7 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.indicatorState != None {
 				return m, nil
 			}
-			return m, tea.Batch(UpdateWifiRows, SetTableSpinnerState(Scanning))
+			return m, tea.Batch(UpdateWifiRows, SetWifiIndicatorState(Scanning))
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
@@ -87,13 +87,13 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.indicatorState = None
 		m.dataTable.SetRows(msg)
 		return m, nil
-	case tableSpinnerStateMsg:
-		m.indicatorState = tableSpinnerState(msg)
+	case WifiIndicatorStateMsg:
+		m.indicatorState = wifiState(msg)
 		if m.indicatorState == None {
 			return m, nil
 		}
 		return m, m.indicatorSpinner.Tick
-	case wifiConnectionMsg:
+	case WifiConnectionMsg:
 		err := nmcli.WifiConnect(&msg.SSID, &msg.password)
 		if err == nil {
 			return m, UpdateWifiRows
@@ -151,21 +151,21 @@ func getWifiRows() []table.Row {
 	return rows
 }
 
-type tableSpinnerStateMsg tableSpinnerState
+type WifiIndicatorStateMsg wifiState
 
-func SetTableSpinnerState(state tableSpinnerState) tea.Cmd {
+func SetWifiIndicatorState(state wifiState) tea.Cmd {
 	return func() tea.Msg {
-		return tableSpinnerStateMsg(state)
+		return WifiIndicatorStateMsg(state)
 	}
 }
 
-type wifiConnectionMsg struct {
+type WifiConnectionMsg struct {
 	SSID     string
 	password string
 }
 
 func WifiConnect(ssid, password string) tea.Cmd {
 	return func() tea.Msg {
-		return wifiConnectionMsg{SSID: ssid, password: password}
+		return WifiConnectionMsg{SSID: ssid, password: password}
 	}
 }
