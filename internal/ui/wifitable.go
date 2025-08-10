@@ -33,7 +33,7 @@ func (s *tableSpinnerState) String() string {
 }
 
 type WifiTableModel struct {
-	wifiTable        table.Model
+	dataTable        table.Model
 	indicatorSpinner spinner.Model
 	indicatorState   tableSpinnerState
 }
@@ -58,7 +58,7 @@ func NewWifiTableModel(width int, height int) *WifiTableModel {
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
-	m := &WifiTableModel{wifiTable: t, indicatorSpinner: s, indicatorState: Scanning}
+	m := &WifiTableModel{dataTable: t, indicatorSpinner: s, indicatorState: Scanning}
 	return m
 }
 
@@ -77,7 +77,7 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.indicatorState = Scanning
 			return m, tea.Batch(UpdateWifiRows, m.indicatorSpinner.Tick)
 		case "enter":
-			row := m.wifiTable.SelectedRow()
+			row := m.dataTable.SelectedRow()
 			if row != nil {
 				return m, ShowPopup(NewWifiConnector(row[1]))
 			}
@@ -85,7 +85,7 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case updatedRowsMsg:
 		m.indicatorState = None
-		m.wifiTable.SetRows(msg)
+		m.dataTable.SetRows(msg)
 		return m, nil
 	}
 
@@ -95,20 +95,20 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
 		cmds = append(cmds, cmd)
 	}
-	m.wifiTable, cmd = m.wifiTable.Update(msg)
+	m.dataTable, cmd = m.dataTable.Update(msg)
 	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
 }
 
 func (m WifiTableModel) View() string {
-	out := m.wifiTable.View()
+	out := m.dataTable.View()
 	var symbol string
 	if m.indicatorState != None {
 		symbol = fmt.Sprintf("%s %s", m.indicatorState.String(), m.indicatorSpinner.View())
 	} else {
 		symbol = "󰄬"
 	}
-	out += "\n" + lipgloss.Place(m.wifiTable.Width(), 1, lipgloss.Center, lipgloss.Center, symbol)
+	out += "\n" + lipgloss.Place(m.dataTable.Width(), 1, lipgloss.Center, lipgloss.Center, symbol)
 	return styles.BorderStyle.Render(out)
 }
 
