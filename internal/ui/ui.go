@@ -8,7 +8,6 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/label"
 	"github.com/alphameo/nm-tui/internal/ui/overlay"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
-	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -62,16 +61,7 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-	var upd tea.Model
 	switch msg := msg.(type) {
-	case timer.TickMsg:
-		m.timer, cmd = m.timer.Update(msg)
-		return m, cmd
-	case spinner.TickMsg:
-		upd, cmd = m.wifiTable.Update(msg)
-		m.wifiTable = upd.(WifiTableModel)
-		return m, cmd
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
@@ -86,37 +76,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case NotificationActivityMsg:
 		m.notification.IsActive = bool(msg)
 		return m, nil
+	case tea.KeyMsg:
+		return m, m.processKeyMsg(msg)
 	}
-	if m.notification.IsActive {
-		upd, cmd = m.notification.Update(msg)
-		m.notification = upd.(overlay.Model)
-		return m, cmd
-	} else if m.popup.IsActive {
-		upd, cmd = m.popup.Update(msg)
-		m.popup = upd.(overlay.Model)
-		return m, cmd
-	} else {
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.String() {
-			case "q", "ctrl+q", "esc", "ctrl+c":
-				return m, tea.Quit
-			case "tab":
-				if m.state == wifiView {
-					m.state = timerView
-				} else {
-					m.state = wifiView
-				}
-				return m, cmd
-			}
-			upd, cmd = m.wifiTable.Update(msg)
-			m.wifiTable = upd.(WifiTableModel)
-			return m, cmd
-		}
-		upd, cmd = m.wifiTable.Update(msg)
-		m.wifiTable = upd.(WifiTableModel)
-		return m, cmd
-	}
+	return m, m.processCommonMsg(msg)
 }
 
 func (m Model) View() string {
@@ -130,6 +93,63 @@ func (m Model) View() string {
 		mainView = m.notification.Place(mainView)
 	}
 	return mainView
+}
+
+func (m *Model) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
+	var cmd tea.Cmd
+	var upd tea.Model
+	if m.notification.IsActive {
+		upd, cmd = m.notification.Update(keyMsg)
+		m.notification = upd.(overlay.Model)
+		return cmd
+	} else if m.popup.IsActive {
+		upd, cmd = m.popup.Update(keyMsg)
+		m.popup = upd.(overlay.Model)
+		return cmd
+	}
+	switch keyMsg.String() {
+	case "q", "ctrl+q", "esc", "ctrl+c":
+		return tea.Quit
+	case "tab":
+		if m.state == wifiView {
+			m.state = timerView
+		} else {
+			m.state = wifiView
+		}
+		return cmd
+	}
+	upd, cmd = m.wifiTable.Update(keyMsg)
+	m.wifiTable = upd.(WifiTableModel)
+	return cmd
+}
+
+func (m *Model) processCommonMsg(msg tea.Msg) tea.Cmd {
+	var cmd tea.Cmd
+	var upd tea.Model
+	m.timer, cmd = m.timer.Update(msg)
+	if cmd != nil {
+		return cmd
+	}
+	upd, cmd = m.wifiTable.Update(msg)
+	m.wifiTable = upd.(WifiTableModel)
+	if cmd != nil {
+		return cmd
+	}
+	if m.notification.IsActive {
+		upd, cmd = m.notification.Update(msg)
+		m.notification = upd.(overlay.Model)
+		if cmd != nil {
+			return cmd
+		}
+	}
+	if m.popup.IsActive {
+		upd, cmd = m.popup.Update(msg)
+		m.popup = upd.(overlay.Model)
+		if cmd != nil {
+			return cmd
+		}
+	}
+	return nil
 }
 
 func (m *Model) showPopup(content tea.Model) tea.Cmd {
