@@ -11,10 +11,31 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+type tableSpinnerState int
+
+const (
+	Scanning tableSpinnerState = iota
+	Connecting
+	None
+)
+
+func (s *tableSpinnerState) String() string {
+	switch *s {
+	case Scanning:
+		return "Scanning"
+	case Connecting:
+		return "Connecting"
+	case None:
+		return ""
+	default:
+		return "Undefined!!!"
+	}
+}
+
 type WifiTableModel struct {
-	wifiTable       table.Model
-	updatingSpinner spinner.Model
-	updating        bool
+	wifiTable        table.Model
+	indicatorSpinner spinner.Model
+	indicatorState   tableSpinnerState
 }
 
 func NewWifiTableModel(width int, height int) *WifiTableModel {
@@ -37,12 +58,12 @@ func NewWifiTableModel(width int, height int) *WifiTableModel {
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
-	m := &WifiTableModel{wifiTable: t, updatingSpinner: s, updating: true}
+	m := &WifiTableModel{wifiTable: t, indicatorSpinner: s, indicatorState: Scanning}
 	return m
 }
 
 func (m WifiTableModel) Init() tea.Cmd {
-	return tea.Batch(m.updatingSpinner.Tick, UpdateWifiRows)
+	return tea.Batch(m.indicatorSpinner.Tick, UpdateWifiRows)
 }
 
 func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -50,11 +71,11 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "r":
-			if m.updating {
+			if m.indicatorState != None {
 				return m, nil
 			}
-			m.updating = true
-			return m, tea.Batch(UpdateWifiRows, m.updatingSpinner.Tick)
+			m.indicatorState = Scanning
+			return m, tea.Batch(UpdateWifiRows, m.indicatorSpinner.Tick)
 		case "enter":
 			row := m.wifiTable.SelectedRow()
 			if row != nil {
@@ -63,15 +84,15 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	case updatedRowsMsg:
-		m.updating = false
+		m.indicatorState = None
 		m.wifiTable.SetRows(msg)
 		return m, nil
 	}
 
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
-	if m.updating {
-		m.updatingSpinner, cmd = m.updatingSpinner.Update(msg)
+	if m.indicatorState != None {
+		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 	m.wifiTable, cmd = m.wifiTable.Update(msg)
@@ -82,8 +103,8 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m WifiTableModel) View() string {
 	out := m.wifiTable.View()
 	var symbol string
-	if m.updating {
-		symbol = m.updatingSpinner.View()
+	if m.indicatorState != None {
+		symbol = fmt.Sprintf("%s %s", m.indicatorState.String(), m.indicatorSpinner.View())
 	} else {
 		symbol = "󰄬"
 	}
