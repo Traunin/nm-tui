@@ -131,11 +131,6 @@ func (m WifiTableModel) View() string {
 type updatedRowsMsg []table.Row
 
 func UpdateWifiRows() tea.Msg {
-	rows := getWifiRows()
-	return updatedRowsMsg(rows)
-}
-
-func getWifiRows() []table.Row {
 	list, err := nmcli.WifiScan()
 	if err != nil {
 		logger.ErrorLog.Println(fmt.Errorf("error: %s", err.Error()))
@@ -148,7 +143,7 @@ func getWifiRows() []table.Row {
 		}
 		rows = append(rows, table.Row{connectionFlag, wifiNet.SSID, wifiNet.Security, fmt.Sprint(wifiNet.Signal)})
 	}
-	return rows
+	return updatedRowsMsg(rows)
 }
 
 type WifiIndicatorStateMsg wifiState
