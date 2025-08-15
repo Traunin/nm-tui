@@ -27,7 +27,7 @@ func WifiScan() ([]WifiScanned, error) {
 		logger.Errf("Error scanning available wifi-networks (%s %s): %s\n", nm, args, err.Error())
 	}
 
-	var results []WifiScanned
+	var res []WifiScanned
 	lines := strings.SplitSeq(string(out), "\n")
 	for line := range lines {
 		if line == "" {
@@ -40,7 +40,7 @@ func WifiScan() ([]WifiScanned, error) {
 		}
 
 		signal, _ := strconv.Atoi(parts[3])
-		results = append(results, WifiScanned{
+		res = append(res, WifiScanned{
 			SSID:     parts[0],
 			Active:   parts[1] == "*",
 			Security: parts[2],
@@ -48,7 +48,7 @@ func WifiScan() ([]WifiScanned, error) {
 		})
 	}
 	logger.Informf("Got list of available wifi-networks (%s %s)\n", nm, args)
-	return results, nil
+	return res, nil
 }
 
 type WifiStored struct {
@@ -65,7 +65,7 @@ func WifiStoredConnections() ([]WifiStored, error) {
 		logger.Errf("Error retreiving stored wifi-networks (%s %s): %s\n", nm, args, err.Error())
 	}
 
-	var results []WifiStored
+	var res []WifiStored
 
 	lines := strings.SplitSeq(string(out), "\n")
 	for line := range lines {
@@ -78,13 +78,13 @@ func WifiStoredConnections() ([]WifiStored, error) {
 			continue
 		}
 
-		results = append(results, WifiStored{
+		res = append(res, WifiStored{
 			Name:   parts[0],
 			Active: parts[1] == "activated",
 		})
 	}
 	logger.Informf("Got list of stored wifi-networks (%s %s)\n", nm, args)
-	return results, nil
+	return res, nil
 }
 
 // WifiConnect connects to wifi-network with given ssid using given password.
@@ -123,9 +123,9 @@ func WifiGetConnected() ([]string, error) {
 		logger.Errf("Error retreiving list of connected wifi-networks (%s %s): %s\n", nm, args, err.Error())
 		return nil, err
 	}
-	result := strings.Split(string(out), "\n")
+	res := strings.Split(string(out), "\n")
 	logger.Informf("Got list of connetcted wifi-networks (%s %s)\n", nm, args)
-	return result, nil
+	return res, nil
 }
 
 // WifiGetPassword gives password of saved wifi-network with given ssid
