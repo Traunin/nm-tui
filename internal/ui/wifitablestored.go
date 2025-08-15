@@ -79,7 +79,7 @@ func UpdateWifiStoredRows() tea.Cmd {
 	return func() tea.Msg {
 		list, err := nmcli.WifiStoredConnections()
 		if err != nil {
-			logger.ErrorLog.Println(fmt.Errorf("error: %s", err.Error()))
+			logger.Errln(fmt.Errorf("error: %s", err.Error()))
 		}
 		rows := []table.Row{}
 		for _, wifiStored := range list {

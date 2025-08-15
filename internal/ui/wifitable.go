@@ -76,7 +76,7 @@ func (m WifiTableModel) View() string {
 	tabCount := len(m.tabTitles)
 	tabWidth := fullWidth/tabCount - 2
 	tail := fullWidth % tabCount
-	logger.InfoLog.Println(fullWidth, tabCount, tabWidth, tail)
+	logger.Debugln(fullWidth, tabCount, tabWidth, tail)
 	var renderedTabs []string
 	for i, t := range m.tabTitles {
 		var style lipgloss.Style
@@ -104,7 +104,7 @@ func (m WifiTableModel) View() string {
 			style = style.Width(tabWidth)
 		}
 		tabView := style.Render(t)
-		logger.InfoLog.Println(tabWidth, lipgloss.Width(tabView))
+		logger.Debugln(tabWidth, lipgloss.Width(tabView))
 		renderedTabs = append(renderedTabs, tabView)
 	}
 
