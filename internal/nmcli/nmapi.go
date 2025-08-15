@@ -77,6 +77,9 @@ func WifiStoredConnections() ([]WifiStored, error) {
 		if len(parts) < 2 {
 			continue
 		}
+		if parts[0] == "lo" {
+			continue
+		}
 
 		res = append(res, WifiStored{
 			Name:   parts[0],
