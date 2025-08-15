@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/alphameo/nm-tui/internal/logger"
 	"github.com/alphameo/nm-tui/internal/nmcli"
@@ -37,6 +38,8 @@ type WifiTableModel struct {
 	dataTable        table.Model
 	indicatorSpinner spinner.Model
 	indicatorState   wifiState
+	tabTitles        []string
+	activeTab        int
 }
 
 func NewWifiTableModel(width int, height int) *WifiTableModel {
@@ -59,7 +62,14 @@ func NewWifiTableModel(width int, height int) *WifiTableModel {
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
-	m := &WifiTableModel{dataTable: t, indicatorSpinner: s, indicatorState: Scanning}
+	tabTitles := []string{"Current", "Stored"}
+
+	m := &WifiTableModel{
+		dataTable:        t,
+		indicatorSpinner: s,
+		indicatorState:   Scanning,
+		tabTitles:        tabTitles,
+	}
 	return m
 }
 
@@ -82,6 +92,12 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				connector := NewWifiConnector(row[1])
 				return m, tea.Sequence(SetPopupActivity(true), SetPopupContent(connector))
 			}
+			return m, nil
+		case "]", "tab":
+			m.activeTab = min(m.activeTab+1, len(m.tabTitles)-1)
+			return m, nil
+		case "[", "shift+tab":
+			m.activeTab = max(m.activeTab-1, 0)
 			return m, nil
 		}
 	case updatedRowsMsg:
@@ -113,14 +129,67 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m WifiTableModel) View() string {
 	out := m.dataTable.View()
+
+	fullWidth := lipgloss.Width(out) + 2
+	tabCount := len(m.tabTitles)
+	tabWidth := fullWidth/tabCount - 2
+	tail := fullWidth % tabCount
+	logger.InfoLog.Println(fullWidth, tabCount, tabWidth, tail)
+	var renderedTabs []string
+	for i, t := range m.tabTitles {
+		var style lipgloss.Style
+		isFirst, isLast, isActive := i == 0, i == len(m.tabTitles)-1, i == m.activeTab
+		if isActive {
+			style = styles.ActiveTabStyle
+		} else {
+			style = styles.InactiveTabStyle
+		}
+		border, _, _, _, _ := style.GetBorder()
+		if isFirst && isActive {
+			border.BottomLeft = "│"
+		} else if isFirst && !isActive {
+			border.BottomLeft = "├"
+		} else if isLast && isActive {
+			border.BottomRight = "│"
+		} else if isLast && !isActive {
+			border.BottomRight = "┤"
+		}
+		style = style.Border(border)
+		if tail > 0 {
+			style = style.Width(tabWidth + 1)
+			tail--
+		} else {
+			style = style.Width(tabWidth)
+		}
+		tabView := style.Render(t)
+		logger.InfoLog.Println(tabWidth, lipgloss.Width(tabView))
+		renderedTabs = append(renderedTabs, tabView)
+	}
+
+	tabRow := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
+
 	var symbol string
 	if m.indicatorState != None {
 		symbol = fmt.Sprintf("%s %s", m.indicatorState.String(), m.indicatorSpinner.View())
 	} else {
 		symbol = "󰄬"
 	}
-	out += "\n" + lipgloss.Place(m.dataTable.Width(), 1, lipgloss.Center, lipgloss.Center, symbol)
-	return styles.BorderStyle.Render(out)
+
+	statusline := lipgloss.Place(m.dataTable.Width(), 1, lipgloss.Center, lipgloss.Center, symbol)
+
+	sb := strings.Builder{}
+	sb.WriteString(tabRow)
+	sb.WriteString("\n")
+	borderStyle := styles.BorderStyle.GetBorderStyle()
+	borderStyle.Top = ""
+	borderStyle.TopLeft = "│"
+	borderStyle.TopRight = "│"
+	var style lipgloss.Style
+	style = style.Border(borderStyle)
+	sb.WriteString(style.Render(out))
+	sb.WriteString("\n")
+	sb.WriteString(statusline)
+	return sb.String()
 }
 
 type updatedRowsMsg []table.Row

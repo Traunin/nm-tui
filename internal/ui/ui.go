@@ -110,7 +110,7 @@ func (m *Model) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 	switch keyMsg.String() {
 	case "q", "ctrl+q", "esc", "ctrl+c":
 		return tea.Quit
-	case "tab":
+	case "s":
 		if m.state == wifiView {
 			m.state = timerView
 		} else {

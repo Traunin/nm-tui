@@ -7,8 +7,12 @@ import (
 )
 
 var (
-	BorderStyle = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder())
-	TableStyle  = makeTableStyle()
+	BorderStyle       = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder())
+	TableStyle        = makeTableStyle()
+	InactiveTabBorder = makeTabBorderWithBottom("┴", "─", "┴")
+	ActiveTabBorder   = makeTabBorderWithBottom("┘", " ", "└")
+	InactiveTabStyle  = lipgloss.NewStyle().Border(InactiveTabBorder, true).Padding(0, 1)
+	ActiveTabStyle    = InactiveTabStyle.Border(ActiveTabBorder, true)
 )
 
 func makeTableStyle() table.Styles {
@@ -23,4 +27,12 @@ func makeTableStyle() table.Styles {
 		Background(lipgloss.Color("57")).
 		Bold(false)
 	return style
+}
+
+func makeTabBorderWithBottom(left, middle, right string) lipgloss.Border {
+	border := lipgloss.RoundedBorder()
+	border.BottomLeft = left
+	border.Bottom = middle
+	border.BottomRight = right
+	return border
 }
