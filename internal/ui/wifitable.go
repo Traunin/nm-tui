@@ -5,7 +5,6 @@ import (
 
 	"github.com/alphameo/nm-tui/internal/logger"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
-	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -108,5 +107,3 @@ func (m WifiTableModel) View() string {
 	sb.WriteString(style.Render(out))
 	return sb.String()
 }
-
-type updatedRowsMsg []table.Row

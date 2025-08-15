@@ -40,12 +40,14 @@ func (m WifiTableStoredModel) Init() tea.Cmd {
 	return UpdateWifiStoredRows()
 }
 
+type storedRowsMsg []table.Row
+
 func (m WifiTableStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "enter":
-		return m, UpdateWifiStoredRows()
+			return m, UpdateWifiStoredRows()
 			// row := m.dataTable.SelectedRow()
 			// if row != nil {
 			// 	connector := NewWifiConnector(row[1])
@@ -53,7 +55,7 @@ func (m WifiTableStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// }
 			// return m, nil
 		}
-	case updatedRowsMsg:
+	case storedRowsMsg:
 		m.dataTable.SetRows(msg)
 		return m, nil
 	}
@@ -89,6 +91,6 @@ func UpdateWifiStoredRows() tea.Cmd {
 			}
 			rows = append(rows, table.Row{connectionFlag, wifiStored.Name})
 		}
-		return updatedRowsMsg(rows)
+		return storedRowsMsg(rows)
 	}
 }

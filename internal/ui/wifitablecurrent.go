@@ -89,7 +89,7 @@ func (m WifiTableCurrentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		}
-	case updatedRowsMsg:
+	case scannedRowsMsg:
 		m.dataTable.SetRows(msg)
 		return m, nil
 	case WifiIndicatorStateMsg:
@@ -134,6 +134,8 @@ func (m WifiTableCurrentModel) View() string {
 	return sb.String()
 }
 
+type scannedRowsMsg []table.Row
+
 func UpdateWifiCurrentRows() tea.Cmd {
 	return tea.Sequence(
 		SetWifiIndicatorState(Scanning),
@@ -150,7 +152,7 @@ func UpdateWifiCurrentRows() tea.Cmd {
 				}
 				rows = append(rows, table.Row{connectionFlag, wifiNet.SSID, wifiNet.Security, fmt.Sprint(wifiNet.Signal)})
 			}
-			return updatedRowsMsg(rows)
+			return scannedRowsMsg(rows)
 		},
 		SetWifiIndicatorState(None))
 }
