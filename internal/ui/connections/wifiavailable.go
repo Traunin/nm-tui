@@ -35,13 +35,13 @@ func (s *wifiState) String() string {
 	}
 }
 
-type WifiTableCurrentModel struct {
+type WifiAvailableModel struct {
 	dataTable        table.Model
 	indicatorSpinner spinner.Model
 	indicatorState   wifiState
 }
 
-func NewWifiTableCurrentTable(width, height int) *WifiTableCurrentModel {
+func NewWifiAvailable(width, height int) *WifiAvailableModel {
 	offset := 8
 	signalWidth := 3
 	connectionFlagWidth := 1
@@ -61,7 +61,7 @@ func NewWifiTableCurrentTable(width, height int) *WifiTableCurrentModel {
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
-	m := &WifiTableCurrentModel{
+	m := &WifiAvailableModel{
 		dataTable:        t,
 		indicatorSpinner: s,
 		indicatorState:   Scanning,
@@ -69,11 +69,11 @@ func NewWifiTableCurrentTable(width, height int) *WifiTableCurrentModel {
 	return m
 }
 
-func (m WifiTableCurrentModel) Init() tea.Cmd {
-	return UpdateWifiCurrentRows()
+func (m WifiAvailableModel) Init() tea.Cmd {
+	return UpdateWifiAvailableRows()
 }
 
-func (m WifiTableCurrentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -81,7 +81,7 @@ func (m WifiTableCurrentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.indicatorState != None {
 				return m, nil
 			}
-			return m, UpdateWifiCurrentRows()
+			return m, UpdateWifiAvailableRows()
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
@@ -117,7 +117,7 @@ func (m WifiTableCurrentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m WifiTableCurrentModel) View() string {
+func (m WifiAvailableModel) View() string {
 	out := m.dataTable.View()
 
 	var symbol string
@@ -137,7 +137,7 @@ func (m WifiTableCurrentModel) View() string {
 
 type scannedRowsMsg []table.Row
 
-func UpdateWifiCurrentRows() tea.Cmd {
+func UpdateWifiAvailableRows() tea.Cmd {
 	return tea.Sequence(
 		SetWifiIndicatorState(Scanning),
 		func() tea.Msg {
@@ -174,7 +174,7 @@ func WifiConnect(ssid, password string) tea.Cmd {
 		func() tea.Msg {
 			err := nmcli.WifiConnect(ssid, password)
 			if err == nil {
-				return AfterWifiConnectionMsg(UpdateWifiCurrentRows())
+				return AfterWifiConnectionMsg(UpdateWifiAvailableRows())
 			} else {
 				error := fmt.Sprintf("Connection interrupted: %s", err.Error())
 				return AfterWifiConnectionMsg(tea.Sequence(controls.SetNotificationActivity(true), controls.SetNotificationText(error)))

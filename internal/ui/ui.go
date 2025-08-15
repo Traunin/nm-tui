@@ -23,7 +23,7 @@ const (
 
 type Model struct {
 	state        sessionState
-	wifiTable    connections.ConnectionsModel
+	wifiTable    connections.Model
 	timer        timer.Model
 	popup        overlay.Model
 	notification overlay.Model
@@ -32,7 +32,7 @@ type Model struct {
 }
 
 func New() Model {
-	w := connections.NewWifiTableModel(51, 20)
+	w := connections.New(51, 20)
 	t := timer.New(time.Hour)
 	p := overlay.New(nil)
 	p.Width = 100
@@ -121,7 +121,7 @@ func (m *Model) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 		return nil
 	}
 	upd, cmd := m.wifiTable.Update(keyMsg)
-	m.wifiTable = upd.(connections.ConnectionsModel)
+	m.wifiTable = upd.(connections.Model)
 	return cmd
 }
 
@@ -133,7 +133,7 @@ func (m *Model) processCommonMsg(msg tea.Msg) tea.Cmd {
 	}
 	var upd tea.Model
 	upd, cmd = m.wifiTable.Update(msg)
-	m.wifiTable = upd.(connections.ConnectionsModel)
+	m.wifiTable = upd.(connections.Model)
 	if cmd != nil {
 		return cmd
 	}

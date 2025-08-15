@@ -10,18 +10,18 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type ConnectionsModel struct {
+type Model struct {
 	tables    []tea.Model
 	tabTitles []string
 	activeTab int
 }
 
-func NewWifiTableModel(width, height int) *ConnectionsModel {
-	current := NewWifiTableCurrentTable(width, height)
-	stored := NewWifiTableStoredTable(width, height)
+func New(width, height int) *Model {
+	current := NewWifiAvailable(width, height)
+	stored := NewWifiStored(width, height)
 	ts := []tea.Model{current, stored}
 	tabTitles := &[]string{"Current", "Stored"}
-	m := &ConnectionsModel{
+	m := &Model{
 		tables:    ts,
 		tabTitles: *tabTitles,
 		activeTab: 0,
@@ -29,7 +29,7 @@ func NewWifiTableModel(width, height int) *ConnectionsModel {
 	return m
 }
 
-func (m ConnectionsModel) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	var cmds []tea.Cmd
 	for _, t := range m.tables {
 		cmds = append(cmds, t.Init())
@@ -37,7 +37,7 @@ func (m ConnectionsModel) Init() tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (m ConnectionsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -55,7 +55,7 @@ func (m ConnectionsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m ConnectionsModel) View() string {
+func (m Model) View() string {
 	out := m.tables[m.activeTab].View()
 
 	fullWidth := lipgloss.Width(out) + 2

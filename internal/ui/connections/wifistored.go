@@ -11,11 +11,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type WifiTableStoredModel struct {
+type WifiStoredModel struct {
 	dataTable table.Model
 }
 
-func NewWifiTableStoredTable(width, height int) *WifiTableStoredModel {
+func NewWifiStored(width, height int) *WifiStoredModel {
 	offset := 4
 	connectionFlagWidth := 1
 	ssidWidth := width - offset - connectionFlagWidth
@@ -30,19 +30,19 @@ func NewWifiTableStoredTable(width, height int) *WifiTableStoredModel {
 		table.WithHeight(height),
 	)
 	t.SetStyles(styles.TableStyle)
-	m := &WifiTableStoredModel{
+	m := &WifiStoredModel{
 		dataTable: t,
 	}
 	return m
 }
 
-func (m WifiTableStoredModel) Init() tea.Cmd {
+func (m WifiStoredModel) Init() tea.Cmd {
 	return UpdateWifiStoredRows()
 }
 
 type storedRowsMsg []table.Row
 
-func (m WifiTableStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -68,7 +68,7 @@ func (m WifiTableStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m WifiTableStoredModel) View() string {
+func (m WifiStoredModel) View() string {
 	out := m.dataTable.View()
 
 	sb := strings.Builder{}
