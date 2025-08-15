@@ -4,7 +4,6 @@ package connections
 import (
 	"strings"
 
-	"github.com/alphameo/nm-tui/internal/logger"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -62,7 +61,6 @@ func (m Model) View() string {
 	tabCount := len(m.tabTitles)
 	tabWidth := fullWidth/tabCount - 2
 	tail := fullWidth % tabCount
-	logger.Debugln(fullWidth, tabCount, tabWidth, tail)
 	var renderedTabs []string
 	for i, t := range m.tabTitles {
 		var style lipgloss.Style
@@ -90,7 +88,6 @@ func (m Model) View() string {
 			style = style.Width(tabWidth)
 		}
 		tabView := style.Render(t)
-		logger.Debugln(tabWidth, lipgloss.Width(tabView))
 		renderedTabs = append(renderedTabs, tabView)
 	}
 

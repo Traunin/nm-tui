@@ -11,17 +11,17 @@ const flag = log.Ldate | log.Ltime | log.Lshortfile
 type LoggerLevel int
 
 const (
-	Information LoggerLevel = iota
-	Warnings
-	Errors
+	InformationLvl LoggerLevel = iota
+	WarningsLvl
+	ErrorsLvl
 )
 
 var (
-	infoLog    = log.New(os.Stdout, "INFO: ", flag)
-	warningLog = log.New(os.Stdout, "WARNING: ", flag)
-	errorLog   = log.New(os.Stderr, "ERROR: ", flag)
-	debugLog   = log.New(os.Stdout, "DEBUG: ", flag)
-	Level      = Errors
+	infoLog  = log.New(os.Stdout, "INFO: ", flag)
+	warnLog  = log.New(os.Stdout, "WARNING: ", flag)
+	errLog   = log.New(os.Stderr, "ERROR: ", flag)
+	debugLog = log.New(os.Stdout, "DEBUG: ", flag)
+	Level    = ErrorsLvl
 )
 
 func Init(path string) {
@@ -30,63 +30,63 @@ func Init(path string) {
 		log.Fatal(err)
 	}
 	infoLog.SetOutput(f)
-	warningLog.SetOutput(f)
-	errorLog.SetOutput(f)
+	warnLog.SetOutput(f)
+	errLog.SetOutput(f)
 	debugLog.SetOutput(f)
 }
 
 func Inform(v ...any) {
-	if Level > Information {
+	if Level > InformationLvl {
 		return
 	}
 	infoLog.Print(v...)
 }
 
 func Informln(v ...any) {
-	if Level > Information {
+	if Level > InformationLvl {
 		return
 	}
 	infoLog.Println(v...)
 }
 
 func Informf(format string, v ...any) {
-	if Level > Information {
+	if Level > InformationLvl {
 		return
 	}
 	infoLog.Printf(format, v...)
 }
 
 func Warn(v ...any) {
-	if Level > Warnings {
+	if Level > WarningsLvl {
 		return
 	}
-	warningLog.Print(v...)
+	warnLog.Print(v...)
 }
 
 func Warnln(v ...any) {
-	if Level > Warnings {
+	if Level > WarningsLvl {
 		return
 	}
-	warningLog.Println(v...)
+	warnLog.Println(v...)
 }
 
 func Warnf(format string, v ...any) {
-	if Level > Warnings {
+	if Level > WarningsLvl {
 		return
 	}
-	warningLog.Printf(format, v...)
+	warnLog.Printf(format, v...)
 }
 
 func Err(v ...any) {
-	errorLog.Print(v...)
+	errLog.Print(v...)
 }
 
 func Errln(v ...any) {
-	errorLog.Println(v...)
+	errLog.Println(v...)
 }
 
 func Errf(format string, v ...any) {
-	errorLog.Printf(format, v...)
+	errLog.Printf(format, v...)
 }
 
 func Debug(v ...any) {
