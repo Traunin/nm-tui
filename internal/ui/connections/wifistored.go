@@ -6,6 +6,7 @@ import (
 
 	"github.com/alphameo/nm-tui/internal/logger"
 	"github.com/alphameo/nm-tui/internal/nmcli"
+	"github.com/alphameo/nm-tui/internal/ui/controls"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -47,13 +48,12 @@ func (m WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "enter":
-			return m, UpdateWifiStoredRows()
-			// row := m.dataTable.SelectedRow()
-			// if row != nil {
-			// 	connector := NewWifiConnector(row[1])
-			// 	return m, tea.Sequence(SetPopupActivity(true), SetPopupContent(connector))
-			// }
-			// return m, nil
+			row := m.dataTable.SelectedRow()
+			if row != nil {
+				connector := NewStoredInfoModel(row[1])
+				return m, tea.Sequence(controls.SetPopupActivity(true), controls.SetPopupContent(connector))
+			}
+			return m, nil
 		}
 	case storedRowsMsg:
 		m.dataTable.SetRows(msg)
