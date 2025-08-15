@@ -1,9 +1,10 @@
-package ui
+package connections
 
 import (
 	"fmt"
 
 	"github.com/alphameo/nm-tui/internal/nmcli"
+	"github.com/alphameo/nm-tui/internal/ui/controls"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -40,7 +41,7 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyEnter:
 			pw := m.password.Value()
-			return m, tea.Sequence(SetPopupActivity(false), WifiConnect(m.SSID, pw))
+			return m, tea.Sequence(controls.SetPopupActivity(false), WifiConnect(m.SSID, pw))
 		case tea.KeyCtrlR:
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal

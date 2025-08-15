@@ -1,4 +1,4 @@
-package ui
+package connections
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/alphameo/nm-tui/internal/logger"
 	"github.com/alphameo/nm-tui/internal/nmcli"
+	"github.com/alphameo/nm-tui/internal/ui/controls"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
@@ -85,7 +86,7 @@ func (m WifiTableCurrentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			row := m.dataTable.SelectedRow()
 			if row != nil {
 				connector := NewWifiConnector(row[1])
-				return m, tea.Sequence(SetPopupActivity(true), SetPopupContent(connector))
+				return m, tea.Sequence(controls.SetPopupActivity(true), controls.SetPopupContent(connector))
 			}
 			return m, nil
 		}
@@ -176,7 +177,7 @@ func WifiConnect(ssid, password string) tea.Cmd {
 				return AfterWifiConnectionMsg(UpdateWifiCurrentRows())
 			} else {
 				error := fmt.Sprintf("Connection interrupted: %s", err.Error())
-				return AfterWifiConnectionMsg(tea.Sequence(SetNotificationActivity(true), SetNotificationText(error)))
+				return AfterWifiConnectionMsg(tea.Sequence(controls.SetNotificationActivity(true), controls.SetNotificationText(error)))
 			}
 		},
 		SetWifiIndicatorState(None))

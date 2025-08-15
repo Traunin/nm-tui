@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alphameo/nm-tui/internal/ui/label"
-	"github.com/alphameo/nm-tui/internal/ui/overlay"
+	"github.com/alphameo/nm-tui/internal/ui/components/label"
+	"github.com/alphameo/nm-tui/internal/ui/components/overlay"
+	"github.com/alphameo/nm-tui/internal/ui/connections"
+	"github.com/alphameo/nm-tui/internal/ui/controls"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
@@ -21,7 +23,7 @@ const (
 
 type Model struct {
 	state        sessionState
-	wifiTable    WifiTableModel
+	wifiTable    connections.ConnectionsModel
 	timer        timer.Model
 	popup        overlay.Model
 	notification overlay.Model
@@ -30,7 +32,7 @@ type Model struct {
 }
 
 func New() Model {
-	w := NewWifiTableModel(51, 20)
+	w := connections.NewWifiTableModel(51, 20)
 	t := timer.New(time.Hour)
 	p := overlay.New(nil)
 	p.Width = 100
@@ -66,16 +68,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 		return m, nil
-	case PopupContentMsg:
+	case controls.PopupContentMsg:
 		m.popup.Content = msg
 		return m, m.popup.Content.Init()
-	case PopupActivityMsg:
+	case controls.PopupActivityMsg:
 		m.popup.IsActive = bool(msg)
 		return m, nil
-	case NotificationTextMsg:
+	case controls.NotificationTextMsg:
 		m.notification.Content = label.New(string(msg))
 		return m, nil
-	case NotificationActivityMsg:
+	case controls.NotificationActivityMsg:
 		m.notification.IsActive = bool(msg)
 		return m, nil
 	case tea.KeyMsg:
@@ -119,7 +121,7 @@ func (m *Model) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 		return nil
 	}
 	upd, cmd := m.wifiTable.Update(keyMsg)
-	m.wifiTable = upd.(WifiTableModel)
+	m.wifiTable = upd.(connections.ConnectionsModel)
 	return cmd
 }
 
@@ -131,7 +133,7 @@ func (m *Model) processCommonMsg(msg tea.Msg) tea.Cmd {
 	}
 	var upd tea.Model
 	upd, cmd = m.wifiTable.Update(msg)
-	m.wifiTable = upd.(WifiTableModel)
+	m.wifiTable = upd.(connections.ConnectionsModel)
 	if cmd != nil {
 		return cmd
 	}
@@ -150,40 +152,4 @@ func (m *Model) processCommonMsg(msg tea.Msg) tea.Cmd {
 		}
 	}
 	return nil
-}
-
-// Public controls
-
-type (
-	PopupContentMsg  tea.Model
-	PopupActivityMsg bool
-)
-
-func SetPopupContent(content tea.Model) tea.Cmd {
-	return func() tea.Msg {
-		return PopupContentMsg(content)
-	}
-}
-
-func SetPopupActivity(isActive bool) tea.Cmd {
-	return func() tea.Msg {
-		return PopupActivityMsg(isActive)
-	}
-}
-
-type (
-	NotificationTextMsg     string
-	NotificationActivityMsg bool
-)
-
-func SetNotificationText(text string) tea.Cmd {
-	return func() tea.Msg {
-		return NotificationTextMsg(text)
-	}
-}
-
-func SetNotificationActivity(isActive bool) tea.Cmd {
-	return func() tea.Msg {
-		return NotificationActivityMsg(isActive)
-	}
 }

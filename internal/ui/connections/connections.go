@@ -1,4 +1,5 @@
-package ui
+// Package connections provides tabbed tables with main iformation about variable connections
+package connections
 
 import (
 	"strings"
@@ -9,18 +10,18 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type WifiTableModel struct {
+type ConnectionsModel struct {
 	tables    []tea.Model
 	tabTitles []string
 	activeTab int
 }
 
-func NewWifiTableModel(width, height int) *WifiTableModel {
+func NewWifiTableModel(width, height int) *ConnectionsModel {
 	current := NewWifiTableCurrentTable(width, height)
 	stored := NewWifiTableStoredTable(width, height)
 	ts := []tea.Model{current, stored}
 	tabTitles := &[]string{"Current", "Stored"}
-	m := &WifiTableModel{
+	m := &ConnectionsModel{
 		tables:    ts,
 		tabTitles: *tabTitles,
 		activeTab: 0,
@@ -28,7 +29,7 @@ func NewWifiTableModel(width, height int) *WifiTableModel {
 	return m
 }
 
-func (m WifiTableModel) Init() tea.Cmd {
+func (m ConnectionsModel) Init() tea.Cmd {
 	var cmds []tea.Cmd
 	for _, t := range m.tables {
 		cmds = append(cmds, t.Init())
@@ -36,7 +37,7 @@ func (m WifiTableModel) Init() tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m ConnectionsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -54,7 +55,7 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m WifiTableModel) View() string {
+func (m ConnectionsModel) View() string {
 	out := m.tables[m.activeTab].View()
 
 	fullWidth := lipgloss.Width(out) + 2
