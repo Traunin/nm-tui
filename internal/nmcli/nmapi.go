@@ -13,15 +13,15 @@ const nm = "nmcli"
 
 type WifiNet struct {
 	SSID     string
+	Active   bool
 	Security string
 	Signal   int
-	Active   bool
 }
 
 // WifiScan shows list of wifi-networks able to be connected
-// CMD: nmcli -t -f IN-USE,SSID,SECURITY,SIGNAL dev wifi
+// CMD: nmcli -t -f SSID,IN-USE,SECURITY,SIGNAL dev wifi
 func WifiScan() ([]WifiNet, error) {
-	out, err := exec.Command(nm, "-t", "-f", "IN-USE,SSID,SECURITY,SIGNAL", "dev", "wifi").Output()
+	out, err := exec.Command(nm, "-t", "-f", "SSID,IN-USE,SECURITY,SIGNAL", "dev", "wifi").Output()
 	if err != nil {
 		return nil, err
 	}
@@ -40,10 +40,10 @@ func WifiScan() ([]WifiNet, error) {
 
 		signal, _ := strconv.Atoi(parts[3])
 		results = append(results, WifiNet{
-			SSID:     parts[1],
+			SSID:     parts[0],
+			Active:   parts[1] == "*",
 			Security: parts[2],
 			Signal:   signal,
-			Active:   parts[0] == "*",
 		})
 	}
 
