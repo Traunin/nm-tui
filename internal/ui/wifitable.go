@@ -11,8 +11,7 @@ import (
 )
 
 type WifiTableModel struct {
-	current   WifiTableCurrentModel
-	stored    WifiTableStoredModel
+	tables    []tea.Model
 	tabTitles []string
 	activeTab int
 }
@@ -20,10 +19,10 @@ type WifiTableModel struct {
 func NewWifiTableModel(width, height int) *WifiTableModel {
 	current := NewWifiTableCurrentTable(width, height)
 	stored := NewWifiTableStoredTable(width, height)
+	ts := []tea.Model{current, stored}
 	tabTitles := &[]string{"Current", "Stored"}
 	m := &WifiTableModel{
-		current:   *current,
-		stored:    *stored,
+		tables:    ts,
 		tabTitles: *tabTitles,
 		activeTab: 0,
 	}
@@ -31,7 +30,11 @@ func NewWifiTableModel(width, height int) *WifiTableModel {
 }
 
 func (m WifiTableModel) Init() tea.Cmd {
-	return tea.Batch(m.current.Init(), m.stored.Init())
+	var cmds []tea.Cmd
+	for _, t := range m.tables {
+		cmds = append(cmds, t.Init())
+	}
+	return tea.Batch(cmds...)
 }
 
 func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -40,37 +43,20 @@ func (m WifiTableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "]", "tab":
 			m.activeTab = min(m.activeTab+1, len(m.tabTitles)-1)
-			return m, m.stored.Init()
+			return m, m.tables[m.activeTab].Init()
 		case "[", "shift+tab":
 			m.activeTab = max(m.activeTab-1, 0)
-			return m, m.current.Init()
+			return m, m.tables[m.activeTab].Init()
 		}
 	}
 
-	switch m.activeTab {
-	case 0:
-		upd, cmd := m.current.Update(msg)
-		m.current = upd.(WifiTableCurrentModel)
-		return m, cmd
-	case 1:
-		upd, cmd := m.stored.Update(msg)
-		m.stored = upd.(WifiTableStoredModel)
-		return m, cmd
-	default:
-		return m, nil
-	}
+	var cmd tea.Cmd
+	m.tables[m.activeTab], cmd = m.tables[m.activeTab].Update(msg)
+	return m, cmd
 }
 
 func (m WifiTableModel) View() string {
-	var out string
-	switch m.activeTab {
-	case 0:
-		out = m.current.View()
-	case 1:
-		out = m.stored.View()
-	default:
-		out = "No Data"
-	}
+	out := m.tables[m.activeTab].View()
 
 	fullWidth := lipgloss.Width(out) + 2
 	tabCount := len(m.tabTitles)
