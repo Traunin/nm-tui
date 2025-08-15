@@ -50,6 +50,41 @@ func WifiScan() ([]WifiNet, error) {
 	return results, nil
 }
 
+type WifiStored struct {
+	Active bool
+	Name   string
+}
+
+// WifiSavedConnections shows list of stored connections and highlights the active one
+// CMD: nmcli -t -f NAME,STATE connection show
+func WifiSavedConnections() ([]WifiStored, error) {
+	args := []string{"-t", "-f", "NAME,STATE", "connection", "show"}
+	out, err := exec.Command(nm, args...).Output()
+	if err != nil {
+		return nil, err
+	}
+
+	var results []WifiStored
+
+	lines := strings.SplitSeq(string(out), "\n")
+	for line := range lines {
+		if line == "" {
+			continue
+		}
+
+		parts := strings.Split(line, ":")
+		if len(parts) < 2 {
+			continue
+		}
+
+		results = append(results, WifiStored{
+			Name:   parts[0],
+			Active: parts[1] == "activated",
+		})
+	}
+	return results, nil
+}
+
 // WifiConnect connects to wifi-network with given ssid using given password.
 // CMD: nmcli device wifi connect "<SSID>" password "<PASSWORD>"
 func WifiConnect(ssid, password string) error {
