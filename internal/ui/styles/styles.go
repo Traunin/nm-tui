@@ -13,6 +13,10 @@ var (
 	ActiveTabBorder   = makeTabBorderWithBottom("┘", " ", "└")
 	InactiveTabStyle  = lipgloss.NewStyle().Border(InactiveTabBorder, true).Padding(0, 1)
 	ActiveTabStyle    = InactiveTabStyle.Border(ActiveTabBorder, true)
+	OverlayStyle      = lipgloss.NewStyle().
+				Border(lipgloss.RoundedBorder()).
+				Align(lipgloss.Center, lipgloss.Center).
+				Foreground(lipgloss.Color("#ffffff"))
 )
 
 func makeTableStyle() table.Styles {
