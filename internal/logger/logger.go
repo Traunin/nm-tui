@@ -24,7 +24,7 @@ var (
 	Level    = ErrorsLvl
 )
 
-func Init(path string) {
+func FilePath(path string) {
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		log.Fatal(err)
