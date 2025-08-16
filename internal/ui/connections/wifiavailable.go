@@ -118,7 +118,7 @@ func (m WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m WifiAvailableModel) View() string {
-	out := m.dataTable.View()
+	view := m.dataTable.View()
 
 	var symbol string
 	if m.indicatorState != None {
@@ -129,7 +129,7 @@ func (m WifiAvailableModel) View() string {
 	statusline := lipgloss.Place(m.dataTable.Width(), 1, lipgloss.Center, lipgloss.Center, symbol)
 
 	sb := strings.Builder{}
-	sb.WriteString(out)
+	sb.WriteString(view)
 	sb.WriteString("\n")
 	sb.WriteString(statusline)
 	return sb.String()

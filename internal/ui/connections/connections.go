@@ -10,18 +10,18 @@ import (
 )
 
 type Model struct {
-	tables    []tea.Model
+	tabTables []tea.Model
 	tabTitles []string
 	activeTab int
 }
 
 func New(width, height int) *Model {
-	current := NewWifiAvailable(width, height)
-	stored := NewWifiStored(width, height)
-	ts := []tea.Model{current, stored}
+	wifiAvailable := NewWifiAvailable(width, height)
+	wifiStored := NewWifiStored(width, height)
+	tabTables := []tea.Model{wifiAvailable, wifiStored}
 	tabTitles := &[]string{"Current", "Stored"}
 	m := &Model{
-		tables:    ts,
+		tabTables: tabTables,
 		tabTitles: *tabTitles,
 		activeTab: 0,
 	}
@@ -30,7 +30,7 @@ func New(width, height int) *Model {
 
 func (m Model) Init() tea.Cmd {
 	var cmds []tea.Cmd
-	for _, t := range m.tables {
+	for _, t := range m.tabTables {
 		cmds = append(cmds, t.Init())
 	}
 	return tea.Batch(cmds...)
@@ -42,22 +42,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "]", "tab":
 			m.activeTab = min(m.activeTab+1, len(m.tabTitles)-1)
-			return m, m.tables[m.activeTab].Init()
+			return m, m.tabTables[m.activeTab].Init()
 		case "[", "shift+tab":
 			m.activeTab = max(m.activeTab-1, 0)
-			return m, m.tables[m.activeTab].Init()
+			return m, m.tabTables[m.activeTab].Init()
 		}
 	}
 
 	var cmd tea.Cmd
-	m.tables[m.activeTab], cmd = m.tables[m.activeTab].Update(msg)
+	m.tabTables[m.activeTab], cmd = m.tabTables[m.activeTab].Update(msg)
 	return m, cmd
 }
 
 func (m Model) View() string {
-	out := m.tables[m.activeTab].View()
+	view := m.tabTables[m.activeTab].View()
 
-	fullWidth := lipgloss.Width(out) + 2
+	fullWidth := lipgloss.Width(view) + 2
 	tabCount := len(m.tabTitles)
 	tabWidth := fullWidth/tabCount - 2
 	tail := fullWidth % tabCount
@@ -102,6 +102,6 @@ func (m Model) View() string {
 	borderStyle.TopRight = "│"
 	var style lipgloss.Style
 	style = style.Border(borderStyle)
-	sb.WriteString(style.Render(out))
+	sb.WriteString(style.Render(view))
 	return sb.String()
 }

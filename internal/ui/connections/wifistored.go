@@ -69,10 +69,10 @@ func (m WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m WifiStoredModel) View() string {
-	out := m.dataTable.View()
+	view := m.dataTable.View()
 
 	sb := strings.Builder{}
-	sb.WriteString(out)
+	sb.WriteString(view)
 	sb.WriteString("\n")
 	return sb.String()
 }
