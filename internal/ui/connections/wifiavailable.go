@@ -129,9 +129,7 @@ func (m WifiAvailableModel) View() string {
 	statusline := lipgloss.Place(m.dataTable.Width(), 1, lipgloss.Center, lipgloss.Center, symbol)
 
 	sb := strings.Builder{}
-	sb.WriteString(view)
-	sb.WriteString("\n")
-	sb.WriteString(statusline)
+	fmt.Fprintf(&sb, "%s\n%s", view, statusline)
 	return sb.String()
 }
 

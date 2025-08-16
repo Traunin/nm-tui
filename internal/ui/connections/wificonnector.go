@@ -2,6 +2,7 @@ package connections
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/alphameo/nm-tui/internal/nmcli"
 	"github.com/alphameo/nm-tui/internal/ui/controls"
@@ -62,5 +63,7 @@ func (m WifiConnectorModel) View() string {
 		NewStyle().
 		BorderStyle(styles.BorderStyle).
 		Render(m.password.View())
-	return fmt.Sprintf("SSID: %s\n%v", m.SSID, inputField)
+	sb := strings.Builder{}
+	fmt.Fprintf(&sb, "SSID: %s\n%v", m.SSID, inputField)
+	return sb.String()
 }

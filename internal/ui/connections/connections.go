@@ -2,6 +2,7 @@
 package connections
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/alphameo/nm-tui/internal/ui/styles"
@@ -63,16 +64,14 @@ func (m Model) View() string {
 		lipgloss.Width(view)+2,
 		m.activeTab,
 	)
-
-	sb := strings.Builder{}
-	sb.WriteString(tabBar)
-	sb.WriteString("\n")
 	borderStyle := styles.BorderStyle
 	borderStyle.Top = ""
 	borderStyle.TopLeft = "│"
 	borderStyle.TopRight = "│"
-	var style lipgloss.Style
-	style = style.Border(borderStyle)
-	sb.WriteString(style.Render(view))
+	style := lipgloss.NewStyle().Border(borderStyle)
+	styledView := style.Render(view)
+
+	sb := strings.Builder{}
+	fmt.Fprintf(&sb, "%s\n%s", tabBar, styledView)
 	return sb.String()
 }

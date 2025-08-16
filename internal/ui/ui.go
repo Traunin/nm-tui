@@ -3,6 +3,7 @@ package ui
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/alphameo/nm-tui/internal/ui/components/label"
@@ -91,8 +92,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	view := fmt.Sprintf("%s\n%s\n state: %v", m.wifiTable.View(), m.timer.View(), m.state)
-	view = lipgloss.NewStyle().BorderStyle(styles.BorderStyle).Width(m.width - 2).Height(m.height - 2).Render(view)
+	sb := strings.Builder{}
+	fmt.Fprintf(&sb, "%s\n%s\n state: %v", m.wifiTable.View(), m.timer.View(), m.state)
+	view := sb.String()
+	style := lipgloss.NewStyle().
+		BorderStyle(styles.BorderStyle).
+		Width(m.width - 2).
+		Height(m.height - 2)
+	view = style.Render(view)
 
 	if m.popup.IsActive {
 		view = m.popup.Place(view, styles.OverlayStyle)

@@ -2,6 +2,7 @@ package connections
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -31,5 +32,7 @@ func (m WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m WifiStoredInfoModel) View() string {
-	return fmt.Sprintf("SSID: %s\n", m.SSID)
+	sb := strings.Builder{}
+	fmt.Fprintf(&sb, "%s\n", m.SSID)
+	return sb.String()
 }

@@ -72,8 +72,7 @@ func (m WifiStoredModel) View() string {
 	view := m.dataTable.View()
 
 	sb := strings.Builder{}
-	sb.WriteString(view)
-	sb.WriteString("\n")
+	fmt.Fprintf(&sb, "%s\n", view)
 	return sb.String()
 }
 
