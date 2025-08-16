@@ -33,23 +33,26 @@ type Model struct {
 }
 
 func New() Model {
-	w := connections.New(51, 20)
-	t := timer.New(time.Hour)
-	p := overlay.New(nil)
-	p.Width = 100
-	p.Height = 10
-	p.XAnchor = overlay.Center
-	p.YAnchor = overlay.Center
-	n := overlay.New(nil)
-	n.XAnchor = overlay.Center
-	n.YAnchor = overlay.Center
-	n.Width = 100
-	n.Height = 10
+	wifiTable := connections.New(51, 20)
+	timer := timer.New(time.Hour)
+	escKeys := []string{"ctrl+q", "esc", "ctrl+c"}
+	popup := overlay.New(nil)
+	popup.Width = 100
+	popup.Height = 10
+	popup.XAnchor = overlay.Center
+	popup.YAnchor = overlay.Center
+	popup.EscapeKeys = escKeys
+	notification := overlay.New(nil)
+	notification.XAnchor = overlay.Center
+	notification.YAnchor = overlay.Center
+	notification.Width = 100
+	notification.Height = 10
+	notification.EscapeKeys = escKeys
 	m := Model{
-		wifiTable:    *w,
-		timer:        t,
-		popup:        *p,
-		notification: *n,
+		wifiTable:    *wifiTable,
+		timer:        timer,
+		popup:        *popup,
+		notification: *notification,
 	}
 	return m
 }
@@ -88,16 +91,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	mainView := m.wifiTable.View() + "\n" + m.timer.View() + fmt.Sprintf("\n state: %v", m.state)
-	mainView = lipgloss.NewStyle().BorderStyle(styles.BorderStyle).Width(m.width - 2).Height(m.height - 2).Render(mainView)
+	view := fmt.Sprintf("%s\n%s\n state: %v", m.wifiTable.View(), m.timer.View(), m.state)
+	view = lipgloss.NewStyle().BorderStyle(styles.BorderStyle).Width(m.width - 2).Height(m.height - 2).Render(view)
 
 	if m.popup.IsActive {
-		mainView = m.popup.Place(mainView)
+		view = m.popup.Place(view, styles.OverlayStyle)
 	}
 	if m.notification.IsActive {
-		mainView = m.notification.Place(mainView)
+		view = m.notification.Place(view, styles.OverlayStyle)
 	}
-	return mainView
+	return view
 }
 
 func (m *Model) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
