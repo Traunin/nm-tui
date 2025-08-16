@@ -2,6 +2,8 @@
 package overlay
 
 import (
+	"slices"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -16,14 +18,15 @@ const (
 
 // Model contains any tea.Model inside
 type Model struct {
-	Content  tea.Model
-	IsActive bool   // Flag for upper composition (Default: `false`)
-	Width    int    // Set to positive if you want specific width (Default: `0`)
-	Height   int    // Set to positive if you want specific height (Default: `0`)
-	XAnchor  Anchor // Start position (Default: `Begin` - very top)
-	YAnchor  Anchor // Start position (Default: `Begin` - very left)
-	XOffset  int    // Counts from the `XAnchor` (Default: `0`)
-	YOffset  int    // Counts from the `YAnchor` (Default: `0`)
+	Content    tea.Model // Content of overlay
+	IsActive   bool      // Flag for upper composition (Default: `false`)
+	Width      int       // Set to positive if you want specific width (Default: `0`)
+	Height     int       // Set to positive if you want specific height (Default: `0`)
+	XAnchor    Anchor    // Start position (Default: `Begin` - very top)
+	YAnchor    Anchor    // Start position (Default: `Begin` - very left)
+	XOffset    int       // Counts from the `XAnchor` (Default: `0`)
+	YOffset    int       // Counts from the `YAnchor` (Default: `0`)
+	EscapeKeys []string  // Keycombinations for close
 }
 
 func (m Model) Init() tea.Cmd {
@@ -35,10 +38,9 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+q", "esc", "ctrl+c":
+	keyMsg, err := msg.(tea.KeyMsg)
+	if err {
+		if slices.Contains(m.EscapeKeys, keyMsg.String()) {
 			m.IsActive = false
 			return m, nil
 		}
@@ -51,17 +53,7 @@ func (m Model) View() string {
 	if m.Content == nil {
 		return ""
 	}
-	layout := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		Align(lipgloss.Center, lipgloss.Center).
-		Foreground(lipgloss.Color("#ffffff"))
-	if m.Width > 0 {
-		layout = layout.Width(m.Width)
-	}
-	if m.Height > 0 {
-		layout = layout.Height(m.Height)
-	}
-	return layout.Render(m.Content.View())
+	return m.Content.View()
 }
 
 func New(content tea.Model) *Model {
@@ -70,6 +62,12 @@ func New(content tea.Model) *Model {
 	}
 }
 
-func (m *Model) Place(bg string) string {
-	return Compose(m.View(), bg, m.XAnchor, m.YAnchor, m.XOffset, m.YOffset)
+func (m *Model) Place(bg string, fgStyle lipgloss.Style) string {
+	if m.Width > 0 {
+		fgStyle = fgStyle.Width(m.Width)
+	}
+	if m.Height > 0 {
+		fgStyle = fgStyle.Height(m.Height)
+	}
+	return Compose(fgStyle.Render(m.View()), bg, m.XAnchor, m.YAnchor, m.XOffset, m.YOffset)
 }
