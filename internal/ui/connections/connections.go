@@ -67,7 +67,7 @@ func (m Model) View() string {
 	sb := strings.Builder{}
 	sb.WriteString(tabRow)
 	sb.WriteString("\n")
-	borderStyle := styles.BorderStyle.GetBorderStyle()
+	borderStyle := styles.BorderStyle
 	borderStyle.Top = ""
 	borderStyle.TopLeft = "│"
 	borderStyle.TopRight = "│"

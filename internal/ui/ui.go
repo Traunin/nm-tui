@@ -12,6 +12,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type sessionState uint
@@ -88,7 +89,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	mainView := m.wifiTable.View() + "\n" + m.timer.View() + fmt.Sprintf("\n state: %v", m.state)
-	mainView = styles.BorderStyle.Width(m.width - 2).Height(m.height - 2).Render(mainView)
+	mainView = lipgloss.NewStyle().BorderStyle(styles.BorderStyle).Width(m.width - 2).Height(m.height - 2).Render(mainView)
 
 	if m.popup.IsActive {
 		mainView = m.popup.Place(mainView)

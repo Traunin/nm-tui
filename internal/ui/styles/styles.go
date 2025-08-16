@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	BorderStyle       = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder())
+	BorderStyle       = lipgloss.RoundedBorder()
 	TableStyle        = makeTableStyle()
 	InactiveTabBorder = makeTabBorderWithBottom("┴", "─", "┴")
 	ActiveTabBorder   = makeTabBorderWithBottom("┘", " ", "└")
