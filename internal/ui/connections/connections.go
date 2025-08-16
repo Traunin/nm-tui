@@ -56,42 +56,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	view := m.tabTables[m.activeTab].View()
-
-	fullWidth := lipgloss.Width(view) + 2
-	tabCount := len(m.tabTitles)
-	tabWidth := fullWidth/tabCount - 2
-	tail := fullWidth % tabCount
-	var renderedTabs []string
-	for i, t := range m.tabTitles {
-		var style lipgloss.Style
-		isFirst, isLast, isActive := i == 0, i == len(m.tabTitles)-1, i == m.activeTab
-		if isActive {
-			style = styles.ActiveTabStyle
-		} else {
-			style = styles.InactiveTabStyle
-		}
-		border, _, _, _, _ := style.GetBorder()
-		if isFirst && isActive {
-			border.BottomLeft = "│"
-		} else if isFirst && !isActive {
-			border.BottomLeft = "├"
-		} else if isLast && isActive {
-			border.BottomRight = "│"
-		} else if isLast && !isActive {
-			border.BottomRight = "┤"
-		}
-		style = style.Border(border)
-		if tail > 0 {
-			style = style.Width(tabWidth + 1)
-			tail--
-		} else {
-			style = style.Width(tabWidth)
-		}
-		tabView := style.Render(t)
-		renderedTabs = append(renderedTabs, tabView)
-	}
-
-	tabRow := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
+	tabRow := styles.ConstructTabBar(
+		m.tabTitles,
+		styles.ActiveTabStyle,
+		styles.InactiveTabStyle,
+		lipgloss.Width(view)+2,
+		m.activeTab,
+	)
 
 	sb := strings.Builder{}
 	sb.WriteString(tabRow)
