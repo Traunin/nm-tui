@@ -56,7 +56,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	view := m.tabTables[m.activeTab].View()
-	tabRow := styles.ConstructTabBar(
+	tabBar := styles.ConstructTabBar(
 		m.tabTitles,
 		styles.ActiveTabStyle,
 		styles.InactiveTabStyle,
@@ -65,7 +65,7 @@ func (m Model) View() string {
 	)
 
 	sb := strings.Builder{}
-	sb.WriteString(tabRow)
+	sb.WriteString(tabBar)
 	sb.WriteString("\n")
 	borderStyle := styles.BorderStyle
 	borderStyle.Top = ""
