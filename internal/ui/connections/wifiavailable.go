@@ -175,7 +175,7 @@ func WifiConnect(ssid, password string) tea.Cmd {
 				return AfterWifiConnectionMsg(UpdateWifiAvailableRows())
 			} else {
 				error := fmt.Sprintf("Connection interrupted: %s", err.Error())
-				return AfterWifiConnectionMsg(tea.Sequence(controls.SetNotificationActivity(true), controls.SetNotificationText(error)))
+				return AfterWifiConnectionMsg(tea.Sequence(controls.Notify(error), controls.DeleteConnection(ssid)))
 			}
 		},
 		SetWifiIndicatorState(None))
