@@ -25,7 +25,7 @@ const (
 
 type Model struct {
 	state        sessionState
-	wifiTable    connections.Model
+	connections  connections.Model
 	timer        timer.Model
 	popup        overlay.Model
 	notification overlay.Model
@@ -50,7 +50,7 @@ func New() Model {
 	notification.Height = 10
 	notification.EscapeKeys = escKeys
 	m := Model{
-		wifiTable:    *wifiTable,
+		connections:  *wifiTable,
 		timer:        timer,
 		popup:        *popup,
 		notification: *notification,
@@ -61,7 +61,7 @@ func New() Model {
 func (m Model) Init() tea.Cmd {
 	return tea.Batch(
 		m.timer.Init(),
-		m.wifiTable.Init(),
+		m.connections.Init(),
 		m.popup.Init(),
 		m.notification.Init(),
 	)
@@ -93,7 +93,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	sb := strings.Builder{}
-	fmt.Fprintf(&sb, "%s\n%s\n state: %v", m.wifiTable.View(), m.timer.View(), m.state)
+	fmt.Fprintf(&sb, "%s\n%s\n state: %v", m.connections.View(), m.timer.View(), m.state)
 	view := sb.String()
 	style := lipgloss.NewStyle().
 		BorderStyle(styles.BorderStyle).
@@ -131,8 +131,8 @@ func (m *Model) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 		}
 		return nil
 	}
-	upd, cmd := m.wifiTable.Update(keyMsg)
-	m.wifiTable = upd.(connections.Model)
+	upd, cmd := m.connections.Update(keyMsg)
+	m.connections = upd.(connections.Model)
 	return cmd
 }
 
@@ -143,8 +143,8 @@ func (m *Model) processCommonMsg(msg tea.Msg) tea.Cmd {
 		return cmd
 	}
 	var upd tea.Model
-	upd, cmd = m.wifiTable.Update(msg)
-	m.wifiTable = upd.(connections.Model)
+	upd, cmd = m.connections.Update(msg)
+	m.connections = upd.(connections.Model)
 	if cmd != nil {
 		return cmd
 	}
