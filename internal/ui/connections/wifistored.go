@@ -54,6 +54,15 @@ func (m WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Sequence(controls.SetPopupActivity(true), controls.SetPopupContent(connector))
 			}
 			return m, nil
+		case "r":
+			return m, UpdateWifiStoredRows()
+		case "d":
+			row := m.dataTable.SelectedRow()
+			cursor := m.dataTable.Cursor()
+			if cursor != 0 {
+				m.dataTable.SetCursor(cursor - 1)
+			}
+			return m, tea.Sequence(DeleteConnection(row[1]), UpdateWifiStoredRows())
 		}
 	case storedRowsMsg:
 		m.dataTable.SetRows(msg)
@@ -91,5 +100,12 @@ func UpdateWifiStoredRows() tea.Cmd {
 			rows = append(rows, table.Row{connectionFlag, wifiStored.Name})
 		}
 		return storedRowsMsg(rows)
+	}
+}
+
+func DeleteConnection(ssid string) tea.Cmd {
+	return func() tea.Msg {
+		nmcli.WifiDeleteConnection(ssid)
+		return nil
 	}
 }
