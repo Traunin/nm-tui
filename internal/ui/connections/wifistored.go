@@ -102,10 +102,3 @@ func UpdateWifiStoredRows() tea.Cmd {
 		return storedRowsMsg(rows)
 	}
 }
-
-func DeleteConnection(ssid string) tea.Cmd {
-	return func() tea.Msg {
-		nmcli.WifiDeleteConnection(ssid)
-		return nil
-	}
-}

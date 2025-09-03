@@ -1,7 +1,10 @@
 // Package controls provides simple public controls of main ui
 package controls
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	"github.com/alphameo/nm-tui/internal/nmcli"
+	tea "github.com/charmbracelet/bubbletea"
+)
 
 type (
 	PopupContentMsg  tea.Model
@@ -34,5 +37,12 @@ func SetNotificationText(text string) tea.Cmd {
 func SetNotificationActivity(isActive bool) tea.Cmd {
 	return func() tea.Msg {
 		return NotificationActivityMsg(isActive)
+	}
+}
+
+func DeleteConnection(ssid string) tea.Cmd {
+	return func() tea.Msg {
+		nmcli.WifiDeleteConnection(ssid)
+		return nil
 	}
 }
