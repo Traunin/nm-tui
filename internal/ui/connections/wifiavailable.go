@@ -39,6 +39,7 @@ type WifiAvailableModel struct {
 	dataTable        table.Model
 	indicatorSpinner spinner.Model
 	indicatorState   wifiState
+	connector        WifiConnectorModel
 }
 
 func NewWifiAvailable(width, height int) *WifiAvailableModel {
@@ -70,7 +71,7 @@ func NewWifiAvailable(width, height int) *WifiAvailableModel {
 }
 
 func (m WifiAvailableModel) Init() tea.Cmd {
-	return UpdateWifiAvailableRows()
+	return m.UpdateRows()
 }
 
 func (m WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -81,7 +82,7 @@ func (m WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.indicatorState != None {
 				return m, nil
 			}
-			return m, UpdateWifiAvailableRows()
+			return m, m.UpdateRows()
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
@@ -99,8 +100,17 @@ func (m WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		return m, m.indicatorSpinner.Tick
-	case AfterWifiConnectionMsg:
-		return m, tea.Cmd(msg)
+	case WifiConnectedErrMsg:
+		var cmd tea.Cmd
+		if msg.err == nil {
+			cmd = m.UpdateRows()
+		} else {
+			cmd = tea.Sequence(
+				controls.Notify(msg.err.Error()),
+				controls.DeleteConnection(msg.ssid),
+			)
+		}
+		return m, tea.Sequence(cmd, SetWifiIndicatorState(None))
 	}
 
 	var cmd tea.Cmd
@@ -135,7 +145,7 @@ func (m WifiAvailableModel) View() string {
 
 type scannedRowsMsg []table.Row
 
-func UpdateWifiAvailableRows() tea.Cmd {
+func (m WifiAvailableModel) UpdateRows() tea.Cmd {
 	return tea.Sequence(
 		SetWifiIndicatorState(Scanning),
 		func() tea.Msg {
@@ -164,19 +174,17 @@ func SetWifiIndicatorState(state wifiState) tea.Cmd {
 	}
 }
 
-type AfterWifiConnectionMsg tea.Cmd
+type WifiConnectedErrMsg struct {
+	err  error
+	ssid string
+}
 
 func WifiConnect(ssid, password string) tea.Cmd {
 	return tea.Sequence(
 		SetWifiIndicatorState(Connecting),
 		func() tea.Msg {
 			err := nmcli.WifiConnect(ssid, password)
-			if err == nil {
-				return AfterWifiConnectionMsg(UpdateWifiAvailableRows())
-			} else {
-				error := fmt.Sprintf("Connection interrupted: %s", err.Error())
-				return AfterWifiConnectionMsg(tea.Sequence(controls.Notify(error), controls.DeleteConnection(ssid)))
-			}
+			return WifiConnectedErrMsg{err: err, ssid: ssid}
 		},
 		SetWifiIndicatorState(None))
 }

@@ -38,7 +38,7 @@ func NewWifiStored(width, height int) *WifiStoredModel {
 }
 
 func (m WifiStoredModel) Init() tea.Cmd {
-	return UpdateWifiStoredRows()
+	return m.UpdateRows()
 }
 
 type storedRowsMsg []table.Row
@@ -55,14 +55,14 @@ func (m WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		case "r":
-			return m, UpdateWifiStoredRows()
+			return m, m.UpdateRows()
 		case "d":
 			row := m.dataTable.SelectedRow()
 			cursor := m.dataTable.Cursor()
 			if cursor != 0 {
 				m.dataTable.SetCursor(cursor - 1)
 			}
-			return m, tea.Sequence(controls.DeleteConnection(row[1]), UpdateWifiStoredRows())
+			return m, tea.Sequence(controls.DeleteConnection(row[1]), m.UpdateRows())
 		}
 	case storedRowsMsg:
 		m.dataTable.SetRows(msg)
@@ -85,7 +85,7 @@ func (m WifiStoredModel) View() string {
 	return sb.String()
 }
 
-func UpdateWifiStoredRows() tea.Cmd {
+func (m WifiStoredModel) UpdateRows() tea.Cmd {
 	return func() tea.Msg {
 		list, err := nmcli.WifiStoredConnections()
 		if err != nil {
