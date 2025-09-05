@@ -105,7 +105,7 @@ func (m WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		return m, m.indicatorSpinner.Tick
-	case WifiConnectedErrMsg:
+	case WifiConnectionMsg:
 		var cmd tea.Cmd
 		if msg.err == nil {
 			cmd = m.UpdateRows()
@@ -179,7 +179,7 @@ func SetWifiIndicatorState(state wifiState) tea.Cmd {
 	}
 }
 
-type WifiConnectedErrMsg struct {
+type WifiConnectionMsg struct {
 	err  error
 	ssid string
 }
@@ -189,7 +189,7 @@ func WifiConnect(ssid, password string) tea.Cmd {
 		SetWifiIndicatorState(Connecting),
 		func() tea.Msg {
 			err := nmcli.WifiConnect(ssid, password)
-			return WifiConnectedErrMsg{err: err, ssid: ssid}
+			return WifiConnectionMsg{err: err, ssid: ssid}
 		},
 		SetWifiIndicatorState(None))
 }
