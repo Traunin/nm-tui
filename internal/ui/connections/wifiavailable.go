@@ -84,11 +84,11 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 	m.pSsidCol.Width = ssidWidth
 }
 
-func (m WifiAvailableModel) Init() tea.Cmd {
+func (m *WifiAvailableModel) Init() tea.Cmd {
 	return m.UpdateRows()
 }
 
-func (m WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -144,7 +144,7 @@ func (m WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m WifiAvailableModel) View() string {
+func (m *WifiAvailableModel) View() string {
 	view := m.dataTable.View()
 
 	var symbol string

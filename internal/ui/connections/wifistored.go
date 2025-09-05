@@ -40,13 +40,13 @@ func NewWifiStored(width, height int) *WifiStoredModel {
 	return m
 }
 
-func (m WifiStoredModel) Init() tea.Cmd {
+func (m *WifiStoredModel) Resize(width, height int) {
 	return m.UpdateRows()
 }
 
 type storedRowsMsg []table.Row
 
-func (m WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -80,7 +80,7 @@ func (m WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m WifiStoredModel) View() string {
+func (m *WifiStoredModel) View() string {
 	view := m.dataTable.View()
 
 	sb := strings.Builder{}
