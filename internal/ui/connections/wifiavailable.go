@@ -62,10 +62,12 @@ func NewWifiAvailable(width, height int) *WifiAvailableModel {
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
+	con := NewWifiConnector()
 	m := &WifiAvailableModel{
 		dataTable:        t,
 		indicatorSpinner: s,
 		indicatorState:   Scanning,
+		connector:        *con,
 	}
 	return m
 }

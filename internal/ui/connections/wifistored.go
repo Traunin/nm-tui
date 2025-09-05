@@ -13,7 +13,8 @@ import (
 )
 
 type WifiStoredModel struct {
-	dataTable table.Model
+	dataTable  table.Model
+	storedInfo WifiStoredInfoModel
 }
 
 func NewWifiStored(width, height int) *WifiStoredModel {
@@ -31,8 +32,10 @@ func NewWifiStored(width, height int) *WifiStoredModel {
 		table.WithHeight(height),
 	)
 	t.SetStyles(styles.TableStyle)
+	s := NewStoredInfoModel()
 	m := &WifiStoredModel{
-		dataTable: t,
+		dataTable:  t,
+		storedInfo: *s,
 	}
 	return m
 }
@@ -50,8 +53,8 @@ func (m WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
-				connector := NewStoredInfoModel(row[1])
-				return m, tea.Sequence(controls.SetPopupActivity(true), controls.SetPopupContent(connector))
+				m.storedInfo.setNew(row[1])
+				return m, tea.Sequence(controls.SetPopupActivity(true), controls.SetPopupContent(m.storedInfo))
 			}
 			return m, nil
 		case "r":
