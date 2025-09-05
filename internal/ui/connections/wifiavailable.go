@@ -58,8 +58,6 @@ func NewWifiAvailable(width, height int) *WifiAvailableModel {
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
-		table.WithWidth(width),
-		table.WithHeight(height),
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
