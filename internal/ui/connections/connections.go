@@ -11,15 +11,22 @@ import (
 )
 
 type Model struct {
-	tabTables []tea.Model
+	tabTables []ResizeableModel
 	tabTitles []string
 	activeTab int
+}
+
+type ResizeableModel interface {
+	Resize(width, height int)
+	Init() tea.Cmd
+	Update(tea.Msg) (tea.Model, tea.Cmd)
+	View() string
 }
 
 func New(width, height int) *Model {
 	wifiAvailable := NewWifiAvailable(width, height)
 	wifiStored := NewWifiStored(width, height)
-	tabTables := []tea.Model{wifiAvailable, wifiStored}
+	tabTables := []ResizeableModel{wifiAvailable, wifiStored}
 	tabTitles := &[]string{"Current", "Stored"}
 	m := &Model{
 		tabTables: tabTables,
@@ -27,6 +34,12 @@ func New(width, height int) *Model {
 		activeTab: 0,
 	}
 	return m
+}
+
+func (m *Model) Resize(width, height int) {
+	for _, t := range m.tabTables {
+		t.Resize(width, height)
+	}
 }
 
 func (m Model) Init() tea.Cmd {
@@ -50,8 +63,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	var cmd tea.Cmd
-	m.tabTables[m.activeTab], cmd = m.tabTables[m.activeTab].Update(msg)
+	upd, cmd := m.tabTables[m.activeTab].Update(msg)
+	m.tabTables[m.activeTab] = upd.(ResizeableModel)
 	return m, cmd
 }
 
