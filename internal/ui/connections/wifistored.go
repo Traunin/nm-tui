@@ -27,8 +27,6 @@ func NewWifiStored(width, height int) *WifiStoredModel {
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
-		table.WithWidth(width),
-		table.WithHeight(height),
 	)
 	t.SetStyles(styles.TableStyle)
 	s := NewStoredInfoModel()
@@ -37,6 +35,7 @@ func NewWifiStored(width, height int) *WifiStoredModel {
 		storedInfo: *s,
 		pSsidCol:   ssidCol,
 	}
+	m.Resize(width, height)
 	return m
 }
 

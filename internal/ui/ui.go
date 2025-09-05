@@ -55,6 +55,7 @@ func New() Model {
 		popup:        popup,
 		notification: notification,
 	}
+	m.connections.Resize(51, 20)
 	return m
 }
 
