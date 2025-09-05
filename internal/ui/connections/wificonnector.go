@@ -13,9 +13,8 @@ import (
 )
 
 type WifiConnectorModel struct {
-	SSID     string
+	ssid     string
 	password textinput.Model
-	err      error
 }
 
 func NewWifiConnector() *WifiConnectorModel {
@@ -30,7 +29,7 @@ func NewWifiConnector() *WifiConnectorModel {
 }
 
 func (m *WifiConnectorModel) setNew(ssid string) {
-	m.SSID = ssid
+	m.ssid = ssid
 	pw, err := nmcli.WifiGetPassword(ssid)
 	if err == nil {
 		m.password.SetValue(pw)
@@ -49,7 +48,7 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			pw := m.password.Value()
 			return m, tea.Sequence(
 				controls.SetPopupActivity(false),
-				WifiConnect(m.SSID, pw),
+				WifiConnect(m.ssid, pw),
 			)
 		case tea.KeyCtrlR:
 			if m.password.EchoMode == textinput.EchoPassword {
@@ -71,6 +70,6 @@ func (m WifiConnectorModel) View() string {
 		BorderStyle(styles.BorderStyle).
 		Render(m.password.View())
 	sb := strings.Builder{}
-	fmt.Fprintf(&sb, "SSID: %s\n%v", m.SSID, inputField)
+	fmt.Fprintf(&sb, "SSID: %s\n%v", m.ssid, inputField)
 	return sb.String()
 }

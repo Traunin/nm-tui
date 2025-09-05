@@ -9,7 +9,7 @@ import (
 )
 
 type WifiStoredInfoModel struct {
-	SSID string
+	ssid string
 }
 
 func NewStoredInfoModel() *WifiStoredInfoModel {
@@ -17,7 +17,7 @@ func NewStoredInfoModel() *WifiStoredInfoModel {
 }
 
 func (m *WifiStoredInfoModel) setNew(ssid string) {
-	m.SSID = ssid
+	m.ssid = ssid
 }
 
 func (m WifiStoredInfoModel) Init() tea.Cmd {
@@ -37,6 +37,6 @@ func (m WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m WifiStoredInfoModel) View() string {
 	sb := strings.Builder{}
-	fmt.Fprintf(&sb, "%s\n", m.SSID)
+	fmt.Fprintf(&sb, "%s\n", m.ssid)
 	return sb.String()
 }
