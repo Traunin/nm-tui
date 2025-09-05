@@ -12,8 +12,12 @@ type WifiStoredInfoModel struct {
 	SSID string
 }
 
-func NewStoredInfoModel(ssid string) *WifiStoredInfoModel {
-	return &WifiStoredInfoModel{SSID: ssid}
+func NewStoredInfoModel() *WifiStoredInfoModel {
+	return &WifiStoredInfoModel{}
+}
+
+func (m *WifiStoredInfoModel) setNew(ssid string) {
+	m.SSID = ssid
 }
 
 func (m WifiStoredInfoModel) Init() tea.Cmd {

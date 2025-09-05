@@ -18,7 +18,7 @@ type WifiConnectorModel struct {
 	err      error
 }
 
-func NewWifiConnector(ssid string) *WifiConnectorModel {
+func NewWifiConnector() *WifiConnectorModel {
 	p := textinput.New()
 	p.Focus()
 	p.Width = 20
@@ -26,11 +26,15 @@ func NewWifiConnector(ssid string) *WifiConnectorModel {
 	p.EchoMode = textinput.EchoPassword
 	p.EchoCharacter = '•'
 	p.Placeholder = "Password"
+	return &WifiConnectorModel{password: p}
+}
+
+func (m *WifiConnectorModel) setNew(ssid string) {
+	m.SSID = ssid
 	pw, err := nmcli.WifiGetPassword(ssid)
 	if err == nil {
-		p.SetValue(pw)
+		m.password.SetValue(pw)
 	}
-	return &WifiConnectorModel{SSID: ssid, password: p}
 }
 
 func (m WifiConnectorModel) Init() tea.Cmd {
@@ -43,7 +47,10 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyEnter:
 			pw := m.password.Value()
-			return m, tea.Sequence(controls.SetPopupActivity(false), WifiConnect(m.SSID, pw))
+			return m, tea.Sequence(
+				controls.SetPopupActivity(false),
+				WifiConnect(m.SSID, pw),
+			)
 		case tea.KeyCtrlR:
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
