@@ -34,26 +34,26 @@ type Model struct {
 }
 
 func New() Model {
-	wifiTable := connections.New(51, 20)
+	wifiTable := *connections.New(51, 20)
 	timer := timer.New(time.Hour)
 	escKeys := []string{"ctrl+q", "esc", "ctrl+c"}
-	popup := overlay.New(nil)
+	popup := *overlay.New(nil)
 	popup.Width = 100
 	popup.Height = 10
 	popup.XAnchor = overlay.Center
 	popup.YAnchor = overlay.Center
 	popup.EscapeKeys = escKeys
-	notification := overlay.New(nil)
+	notification := *overlay.New(nil)
 	notification.XAnchor = overlay.Center
 	notification.YAnchor = overlay.Center
 	notification.Width = 100
 	notification.Height = 10
 	notification.EscapeKeys = escKeys
 	m := Model{
-		connections:  *wifiTable,
+		connections:  wifiTable,
 		timer:        timer,
-		popup:        *popup,
-		notification: *notification,
+		popup:        popup,
+		notification: notification,
 	}
 	return m
 }
