@@ -15,16 +15,15 @@ import (
 type WifiStoredModel struct {
 	dataTable  table.Model
 	storedInfo WifiStoredInfoModel
+	pSsidCol   *table.Column
 }
 
 func NewWifiStored(width, height int) *WifiStoredModel {
-	offset := 4
-	connectionFlagWidth := 1
-	ssidWidth := width - offset - connectionFlagWidth
 	cols := []table.Column{
-		{Title: "󱘖", Width: connectionFlagWidth},
-		{Title: "SSID", Width: ssidWidth},
+		{Title: "󱘖", Width: conFlagColWidth},
+		{Title: "SSID"},
 	}
+	ssidCol := &cols[1]
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
@@ -36,11 +35,20 @@ func NewWifiStored(width, height int) *WifiStoredModel {
 	m := &WifiStoredModel{
 		dataTable:  t,
 		storedInfo: *s,
+		pSsidCol:   ssidCol,
 	}
 	return m
 }
 
 func (m *WifiStoredModel) Resize(width, height int) {
+	m.dataTable.SetWidth(width)
+	m.dataTable.SetHeight(height)
+	offset := 4
+	ssidWidth := width - offset - conFlagColWidth
+	m.pSsidCol.Width = ssidWidth
+}
+
+func (m *WifiStoredModel) Init() tea.Cmd {
 	return m.UpdateRows()
 }
 
