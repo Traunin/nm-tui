@@ -20,6 +20,8 @@ const (
 	Scanning wifiState = iota
 	Connecting
 	None
+	signalColWidth  int = 3
+	conFlagColWidth     = 1
 )
 
 func (s *wifiState) String() string {
@@ -40,20 +42,19 @@ type WifiAvailableModel struct {
 	indicatorSpinner spinner.Model
 	indicatorState   wifiState
 	connector        WifiConnectorModel
+	pSsidCol         *table.Column
+	pSecurityCol     *table.Column
 }
 
 func NewWifiAvailable(width, height int) *WifiAvailableModel {
-	offset := 8
-	signalWidth := 3
-	connectionFlagWidth := 1
-	securityWidth := 10
-	ssidWidth := width - signalWidth - offset - connectionFlagWidth - securityWidth
 	cols := []table.Column{
-		{Title: "󱘖", Width: connectionFlagWidth},
-		{Title: "SSID", Width: ssidWidth},
-		{Title: "Security", Width: securityWidth},
-		{Title: "", Width: signalWidth},
+		{Title: "󱘖", Width: conFlagColWidth},
+		{Title: "SSID"},
+		{Title: "Security"},
+		{Title: "", Width: signalColWidth},
 	}
+	ssidCol := &cols[1]
+	securityCol := &cols[2]
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
@@ -62,14 +63,27 @@ func NewWifiAvailable(width, height int) *WifiAvailableModel {
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
-	con := NewWifiConnector()
+	con := *NewWifiConnector()
 	m := &WifiAvailableModel{
 		dataTable:        t,
 		indicatorSpinner: s,
 		indicatorState:   Scanning,
-		connector:        *con,
+		connector:        con,
+		pSsidCol:         ssidCol,
+		pSecurityCol:     securityCol,
 	}
+	m.Resize(width, height)
 	return m
+}
+
+func (m *WifiAvailableModel) Resize(width, height int) {
+	m.dataTable.SetWidth(width)
+	m.dataTable.SetHeight(height)
+	offset := 8
+	securityWidth := 10
+	ssidWidth := width - signalColWidth - offset - conFlagColWidth - securityWidth
+	m.pSecurityCol.Width = securityWidth
+	m.pSsidCol.Width = ssidWidth
 }
 
 func (m WifiAvailableModel) Init() tea.Cmd {
