@@ -62,7 +62,7 @@ func (m WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "d":
 			row := m.dataTable.SelectedRow()
 			cursor := m.dataTable.Cursor()
-			if cursor != 0 {
+			if cursor == len(m.dataTable.Rows())-1 {
 				m.dataTable.SetCursor(cursor - 1)
 			}
 			return m, tea.Sequence(controls.DeleteConnection(row[1]), m.UpdateRows())
